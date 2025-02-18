@@ -118,7 +118,7 @@ fun Page4Screen() {
 
 @Composable
 fun Page5Screen() {
-    Text("Page5 Screen")
+    Text("Page5 Screeeeen")
 }
 
 // ---------- 5. 現在のルートを取得するヘルパー ----------
