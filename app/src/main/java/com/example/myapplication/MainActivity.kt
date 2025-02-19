@@ -1,28 +1,71 @@
 package com.example.myapplication
 
+import android.Manifest
 import android.os.Bundle
+import android.content.pm.PackageManager
+import android.location.Location
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.padding
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 
 // ----------- MainActivity クラスを追加 -----------
 class MainActivity : ComponentActivity() {
+
+    private val REQUIRED_PERMISSIONS = arrayOf(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 位置情報の権限をリクエスト
+        requestLocationPermission()
+
         setContent {
             MyTabletApp()
         }
     }
+
+    private fun requestLocationPermission() {
+        val requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            val allGranted = permissions.all { it.value }
+            if (!allGranted) {
+                println("位置情報の権限が拒否されました")
+            }
+        }
+
+        if (!allPermissionsGranted()) {
+            requestPermissionLauncher.launch(REQUIRED_PERMISSIONS)
+        }
+    }
+
+    private fun allPermissionsGranted(): Boolean {
+        return REQUIRED_PERMISSIONS.all { permission ->
+            ActivityCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+        }
+    }
 }
+
 
 // ---------- 1. メイン画面で Scaffold + NavHost + BottomBar を構築 ----------
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,7 +81,6 @@ fun MyTabletApp() {
             startDestination = BottomItem.Page1.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            // 5つのページを定義
             composable(BottomItem.Page1.route) { Page1Screen() }
             composable(BottomItem.Page2.route) { Page2Screen() }
             composable(BottomItem.Page3.route) { Page3Screen() }
@@ -70,7 +112,7 @@ fun MyBottomBar(navController: NavHostController) {
                         contentDescription = item.label
                     )
                 },
-                label = null,
+                label = {}, // ラベルを非表示
                 selected = currentRoute == item.route,
                 onClick = {
                     navController.navigate(item.route) {
@@ -98,8 +140,46 @@ sealed class BottomItem(val route: String, val iconRes: Int, val label: String) 
 // ---------- 4. 5つのページ (サンプル) ----------
 @Composable
 fun Page1Screen() {
-    Text("Page1 Screen")
+    val context = LocalContext.current
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    var locationText by remember { mutableStateOf("位置情報未取得") }
+
+    fun fetchLocation() {
+        if (ActivityCompat.checkSelfPermission(
+                context, Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                context, Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            locationText = "位置情報の権限がありません"
+            return
+        }
+
+        fusedLocationClient.getCurrentLocation(
+            Priority.PRIORITY_HIGH_ACCURACY, null
+        ).addOnSuccessListener { location: Location? ->
+            location?.let {
+                locationText = "緯度: ${it.latitude}, 経度: ${it.longitude}"
+            } ?: run {
+                locationText = "位置情報を取得できません"
+            }
+        }
+
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Button(onClick = { fetchLocation() }) {
+            Text("現在地を取得")
+        }
+        Text(text = locationText, style = MaterialTheme.typography.headlineMedium)
+    }
 }
+
 
 @Composable
 fun Page2Screen() {
