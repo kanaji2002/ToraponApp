@@ -99,6 +99,7 @@ sealed class BottomItem(val route: String, val iconRes: Int, val label: String) 
 @Composable
 fun Page1Screen() {
     Text("Page1 Screen")
+    // 苧坂編集
 }
 
 @Composable
