@@ -12,10 +12,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -25,6 +27,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 
+//地図
+import java.util.*
+data class Edge(val to:String, val weight: Int)
+
+
+
 // ----------- MainActivity クラスを追加 -----------
 class MainActivity : ComponentActivity() {
 
@@ -32,6 +40,8 @@ class MainActivity : ComponentActivity() {
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION
     )
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +51,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MyTabletApp()
+
+
         }
     }
 
@@ -138,47 +150,171 @@ sealed class BottomItem(val route: String, val iconRes: Int, val label: String) 
 }
 
 // ---------- 4. 5つのページ (サンプル) ----------
+
+
+
+var start : String = "A"
+var goal : String = "D"
+
+
 @Composable
 fun Page1Screen() {
-    val context = LocalContext.current
-    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-    var locationText by remember { mutableStateOf("位置情報未取得") }
+    val graph = mapOf(
+        "A" to listOf(Edge("B", 4), Edge("C", 2)),
+        "B" to listOf(Edge("A", 4), Edge("C", 5), Edge("D", 10)),
+        "C" to listOf(Edge("A", 2), Edge("B", 5), Edge("D", 3)),
+        "D" to listOf(Edge("B", 10), Edge("C", 3), Edge("E", 8)),
+        "E" to listOf(Edge("D", 8), Edge("A", 7))
+    )
 
-    fun fetchLocation() {
-        if (ActivityCompat.checkSelfPermission(
-                context, Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(
-                context, Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
+    var startLocation by remember { mutableStateOf(start) }
+    var goalLocation by remember { mutableStateOf(goal) }
+    var resultText by remember { mutableStateOf("結果がここに表示されます") }
+
+    val locations = graph.keys.toList()
+
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text("現在地 $startLocation",
+            fontSize = 24.sp
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text("目的地 $goalLocation",
+
+            fontSize = 24.sp
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                if (startLocation == goalLocation) {
+                    resultText = "現在地と目的地が同じです"
+                } else {
+                    val result = dijkstra(graph, startLocation, goalLocation)
+                    resultText = result?.let {
+                        "最短経路: ${it.first.joinToString(" → ")}\n合計距離: ${it.second}"
+                    } ?: "経路が見つかりません。"
+                }
+            },
+//            modifier = Modifier.fillMaxWidth()
         ) {
-            locationText = "位置情報の権限がありません"
-            return
+            Text("最短経路を計算")
         }
 
-        fusedLocationClient.getCurrentLocation(
-            Priority.PRIORITY_HIGH_ACCURACY, null
-        ).addOnSuccessListener { location: Location? ->
-            location?.let {
-                locationText = "緯度: ${it.latitude}, 経度: ${it.longitude}"
-            } ?: run {
-                locationText = "位置情報を取得できません"
-            }
-        }
+        Spacer(modifier = Modifier.height(16.dp))
 
-    }
-
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Button(onClick = { fetchLocation() }) {
-            Text("現在地を取得")
-        }
-        Text(text = locationText, style = MaterialTheme.typography.headlineMedium)
+        Text(text = resultText,
+            fontSize = 24.sp
+        )
     }
 }
+
+
+
+fun dijkstra(graph: Map<String, List<Edge>>, start: String, goal: String): Pair<List<String>, Int>? {
+    val distances = mutableMapOf<String, Int>().withDefault { Int.MAX_VALUE }
+    val previousNodes = mutableMapOf<String, String?>()
+    val priorityQueue = PriorityQueue<Pair<String, Int>>(compareBy { it.second })
+
+    distances[start] = 0
+    priorityQueue.add(start to 0)
+
+    while (priorityQueue.isNotEmpty()) {
+        val (current, currentDistance) = priorityQueue.poll()
+
+        if (current == goal) break
+
+        graph[current]?.forEach { edge ->
+            val newDistance = currentDistance + edge.weight
+            if (newDistance < distances.getValue(edge.to)) {
+                distances[edge.to] = newDistance
+                previousNodes[edge.to] = current
+                priorityQueue.add(edge.to to newDistance)
+            }
+        }
+    }
+
+    return constructPath(previousNodes, start, goal, distances[goal] ?: Int.MAX_VALUE)
+}
+
+fun constructPath(prev: Map<String, String?>, start: String, goal: String, distance: Int): Pair<List<String>, Int>? {
+    if (distance == Int.MAX_VALUE) return null
+
+    val path = mutableListOf<String>()
+    var current: String? = goal
+    while (current != null) {
+        path.add(current)
+        current = prev[current]
+    }
+    path.reverse()
+
+    return if (path.first() == start) path to distance else null
+}
+
+
+
+//@Composable
+//fun Page1Screen() {
+//    val context = LocalContext.current
+//    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+//    var locationText by remember { mutableStateOf("位置情報未取得") }
+//
+//    Column(
+//        modifier = Modifier.fillMaxSize(),
+//        horizontalAlignment = Alignment.CenterHorizontally,
+////        verticalArrangement = Arrangement.Center
+//         ){
+//        Text(
+//            text = "経度",
+//            color = Color.Gray,
+//            style = MaterialTheme.typography.headlineMedium,
+//            modifier = Modifier.padding(16.dp)
+//        )
+//        Spacer(modifier = Modifier.height(20.dp))
+//        Text(
+//            text = "カナジ",
+//            color = Color.Gray,
+//            style = MaterialTheme.typography.headlineMedium,
+//            modifier = Modifier.padding(16.dp)
+//        )
+//    }
+//
+//    fun fetchLocation() {
+//        if (ActivityCompat.checkSelfPermission(
+//                context, Manifest.permission.ACCESS_FINE_LOCATION
+//            ) != PackageManager.PERMISSION_GRANTED &&
+//            ActivityCompat.checkSelfPermission(
+//                context, Manifest.permission.ACCESS_COARSE_LOCATION
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            locationText = "位置情報の権限がありません"
+//            return
+//        }
+//
+//        fusedLocationClient.getCurrentLocation(
+//            Priority.PRIORITY_HIGH_ACCURACY, null
+//        ).addOnSuccessListener { location: Location? ->
+//            location?.let {
+//                locationText = "緯度: ${it.latitude}, 経度: ${it.longitude}"
+//            } ?: run {
+//                locationText = "位置情報を取得できません"
+//            }
+//        }
+//
+//    }
+//
+//    Column(
+//        modifier = Modifier.fillMaxSize(),
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//        verticalArrangement = Arrangement.Center
+//    ) {
+//        Button(onClick = { fetchLocation() }) {
+//            Text("現在地を取得")
+//        }
+//        Text(text = locationText, style = MaterialTheme.typography.headlineMedium)
+//    }
+//}
 
 
 @Composable
