@@ -63,5 +63,8 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.2.1")
     debugImplementation("androidx.compose.ui:ui-tooling:1.2.1")
     debugImplementation("androidx.compose.ui:ui-test-manifest:1.2.1")
+
+    //Osaka追加
+    implementation ("io.coil-kt:coil-compose:2.0.0")  // Coil Compose ライブラリ
 }
 
