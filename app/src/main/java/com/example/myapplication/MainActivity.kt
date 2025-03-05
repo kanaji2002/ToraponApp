@@ -1,34 +1,47 @@
 package com.example.myapplication
 
+
+//地図
 import android.Manifest
-import android.os.Bundle
 import android.content.pm.PackageManager
-import android.location.Location
+import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.PaintingStyle
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-
-//地図
-import java.util.*
+import androidx.navigation.compose.rememberNavController
+import java.util.PriorityQueue
+import kotlin.math.abs
 data class Edge(val to:String, val weight: Int)
 
 
@@ -154,89 +167,209 @@ sealed class BottomItem(val route: String, val iconRes: Int, val label: String) 
 
 
 var start : String = "A"
-var goal : String = "D"
+var goal : String = "F"
+
+
+fun bSplineInterpolation(points: List<Pair<Float, Float>>, degree: Int = 3, numPoints: Int = 50): List<Pair<Float, Float>> {
+    val n = points.size - 1
+    if (n < degree) return points // 制御点が少ない場合、スプラインを適用せずそのまま
+
+    val knots = mutableListOf<Float>()
+    val tMin = 0f
+    val tMax = 1f
+    val step = (tMax - tMin) / (numPoints - 1)
+
+    for (i in 0 until n + degree + 1) {
+        knots.add(i.toFloat() / (n + degree))
+    }
+
+    fun basis(i: Int, d: Int, t: Float): Float {
+        if (d == 0) {
+            return if (knots[i] <= t && t < knots[i + 1]) 1f else 0f
+        }
+        val a = if (knots[i + d] == knots[i]) 0f else (t - knots[i]) / (knots[i + d] - knots[i]) * basis(i, d - 1, t)
+        val b = if (knots[i + d + 1] == knots[i + 1]) 0f else (knots[i + d + 1] - t) / (knots[i + d + 1] - knots[i + 1]) * basis(i + 1, d - 1, t)
+        return a + b
+    }
+
+    val interpolatedPoints = mutableListOf<Pair<Float, Float>>()
+
+    var t = tMin
+    while (t <= tMax) {
+        var x = 0f
+        var y = 0f
+        for (i in 0..n) {
+            val weight = basis(i, degree, t)
+            x += weight * points[i].first
+            y += weight * points[i].second
+        }
+        interpolatedPoints.add(Pair(x, y))
+        t += step // Float でも適用できるように手動で増やす
+    }
+
+
+    return interpolatedPoints
+}
+
+val graph = mapOf(
+    "A" to listOf(Edge("B", 4), Edge("C", 2), Edge("F", 6)),
+    "B" to listOf(Edge("A", 4), Edge("C", 5), Edge("D", 10), Edge("G", 8)),
+    "C" to listOf(Edge("A", 2), Edge("B", 5), Edge("D", 3), Edge("E", 7)),
+    "D" to listOf(Edge("H", 10), Edge("C", 3), Edge("E", 8), Edge("H", 6)),
+    "E" to listOf(Edge("F", 7), Edge("D", 8), Edge("I", 4)),
+    "F" to listOf(Edge("A", 6), Edge("G", 5), Edge("J", 9)),
+    "G" to listOf(Edge("B", 8), Edge("F", 5), Edge("H", 4), Edge("K", 6)),
+    "H" to listOf(Edge("D", 6), Edge("G", 4), Edge("I", 7), Edge("L", 5)),
+//    "I" to listOf(Edge("E", 4), Edge("H", 7), Edge("M", 8)),
+//    "J" to listOf(Edge("F", 9), Edge("K", 3), Edge("N", 10)),
+//    "K" to listOf(Edge("G", 6), Edge("J", 3), Edge("L", 2), Edge("O", 7)),
+//    "L" to listOf(Edge("H", 5), Edge("K", 2), Edge("M", 4), Edge("P", 9)),
+//    "M" to listOf(Edge("I", 8), Edge("L", 4), Edge("Q", 5)),
+//    "N" to listOf(Edge("J", 10), Edge("O", 6), Edge("R", 7)),
+//    "O" to listOf(Edge("K", 7), Edge("N", 6), Edge("P", 3), Edge("S", 8)),
+//    "P" to listOf(Edge("L", 9), Edge("O", 3), Edge("Q", 2), Edge("T", 7)),
+//    "Q" to listOf(Edge("M", 5), Edge("P", 2), Edge("U", 6)),
+//    "R" to listOf(Edge("N", 7), Edge("S", 4), Edge("V", 9)),
+//    "S" to listOf(Edge("O", 8), Edge("R", 4), Edge("T", 3), Edge("W", 7)),
+//    "T" to listOf(Edge("P", 7), Edge("S", 3), Edge("U", 4), Edge("X", 6)),
+//    "U" to listOf(Edge("Q", 6), Edge("T", 4), Edge("Y", 5)),
+//    "V" to listOf(Edge("R", 9), Edge("W", 6), Edge("Z", 10)),
+//    "W" to listOf(Edge("S", 7), Edge("V", 6), Edge("X", 2)),
+//    "X" to listOf(Edge("T", 6), Edge("W", 2), Edge("Y", 3)),
+//    "Y" to listOf(Edge("U", 5), Edge("X", 3), Edge("Z", 8)),
+//    "Z" to listOf(Edge("V", 10), Edge("Y", 8))
+)
 
 
 @Composable
 fun Page1Screen() {
-    val graph = mapOf(
-        "A" to listOf(Edge("B", 4), Edge("C", 2)),
-        "B" to listOf(Edge("A", 4), Edge("C", 5), Edge("D", 10)),
-        "C" to listOf(Edge("A", 2), Edge("B", 5), Edge("D", 3)),
-        "D" to listOf(Edge("B", 10), Edge("C", 3), Edge("E", 8)),
-        "E" to listOf(Edge("D", 8), Edge("A", 7))
-    )
 
-    var startLocation by remember { mutableStateOf(start) }
-    var goalLocation by remember { mutableStateOf(goal) }
-    var resultText by remember { mutableStateOf("結果がここに表示されます") }
 
-    val locations = graph.keys.toList()
+    var startLocation by remember { mutableStateOf("A") }
+    var goalLocation by remember { mutableStateOf("G") }
+    var path by remember { mutableStateOf<List<String>?>(null) }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text("現在地 $startLocation",
-            fontSize = 24.sp
-        )
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Text("現在地: $startLocation", fontSize = 20.sp)
+        Text("目的地: $goalLocation", fontSize = 20.sp)
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("目的地 $goalLocation",
-
-            fontSize = 24.sp
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                if (startLocation == goalLocation) {
-                    resultText = "現在地と目的地が同じです"
-                } else {
-                    val result = dijkstra(graph, startLocation, goalLocation)
-                    resultText = result?.let {
-                        "最短経路: ${it.first.joinToString(" → ")}\n合計距離: ${it.second}"
-                    } ?: "経路が見つかりません。"
-                }
-            },
-//            modifier = Modifier.fillMaxWidth()
-        ) {
+        Button(onClick = {
+//            val result = dijkstra(graph, startLocation, goalLocation)
+            val result = aStar(graph, startLocation, goalLocation)
+            path = result?.first
+        }) {
             Text("最短経路を計算")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(text = resultText,
-            fontSize = 24.sp
-        )
+        if (path != null) {
+            val points = path!!.mapIndexed { index, node ->
+                Pair(index * 100f + 50f, (node[0] - 'A') * 100f + 50f)
+            }
+
+            val smoothPath = bSplineInterpolation(points)
+
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val paint = Paint().apply {
+                    color = Color.Blue
+                    strokeWidth = 5f
+                    style = PaintingStyle.Stroke
+                }
+
+                val pathObj = Path().apply {
+                    if (smoothPath.isNotEmpty()) {
+                        moveTo(smoothPath[0].first, smoothPath[0].second)
+                        smoothPath.forEach { (x, y) ->
+                            lineTo(x, y)
+                        }
+                    }
+                }
+
+                drawPath(
+                    path = pathObj,
+                    color = Color.Blue, // ここを Paint ではなく Color に変更
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 5f) // Stroke を適用
+                )
+
+            }
+        }
     }
 }
 
+fun lineTo(x: Float, y: Float) {
+
+}
+
+fun heuristic(node: String, goal: String): Int {
+    return abs(node[0] - goal[0]) * 5 // 例: 文字の距離 * 5
+}
 
 
-fun dijkstra(graph: Map<String, List<Edge>>, start: String, goal: String): Pair<List<String>, Int>? {
-    val distances = mutableMapOf<String, Int>().withDefault { Int.MAX_VALUE }
-    val previousNodes = mutableMapOf<String, String?>()
-    val priorityQueue = PriorityQueue<Pair<String, Int>>(compareBy { it.second })
+fun aStar(graph: Map<String, List<Edge>>, start: String, goal: String): Pair<List<String>, Int>? {
+    val openSet = PriorityQueue(compareBy<Pair<String, Int>> { it.second }) // 最小 f(n) で管理
+    val gScore = mutableMapOf<String, Int>().withDefault { Int.MAX_VALUE }
+    val fScore = mutableMapOf<String, Int>().withDefault { Int.MAX_VALUE }
+    val cameFrom = mutableMapOf<String, String?>()
 
-    distances[start] = 0
-    priorityQueue.add(start to 0)
+    gScore[start] = 0
+    fScore[start] = heuristic(start, goal) // 初期の推定コスト
+    openSet.add(start to fScore[start]!!)
 
-    while (priorityQueue.isNotEmpty()) {
-        val (current, currentDistance) = priorityQueue.poll()
+    while (openSet.isNotEmpty()) {
+        val (current, _) = openSet.poll()
 
-        if (current == goal) break
+        if (current == goal) break // ゴールに到達
 
         graph[current]?.forEach { edge ->
-            val newDistance = currentDistance + edge.weight
-            if (newDistance < distances.getValue(edge.to)) {
-                distances[edge.to] = newDistance
-                previousNodes[edge.to] = current
-                priorityQueue.add(edge.to to newDistance)
+            val tentativeGScore = gScore.getValue(current) + edge.weight
+
+            if (tentativeGScore < gScore.getValue(edge.to)) {
+                cameFrom[edge.to] = current
+                gScore[edge.to] = tentativeGScore
+                fScore[edge.to] = tentativeGScore + heuristic(edge.to, goal)
+
+                if (openSet.none { it.first == edge.to }) {
+                    openSet.add(edge.to to fScore[edge.to]!!)
+                }
             }
         }
     }
 
-    return constructPath(previousNodes, start, goal, distances[goal] ?: Int.MAX_VALUE)
+    return constructPath(cameFrom, start, goal, gScore[goal] ?: Int.MAX_VALUE)
 }
+
+
+//fun dijkstra(graph: Map<String, List<Edge>>, start: String, goal: String): Pair<List<String>, Int>? {
+//    val distances = mutableMapOf<String, Int>().withDefault { Int.MAX_VALUE }
+//    val previousNodes = mutableMapOf<String, String?>()
+//    val priorityQueue = PriorityQueue(compareBy<Pair<String, Int>> { it.second })
+//
+//    distances[start] = 0
+//    priorityQueue.add(start to 0)
+//
+//    while (priorityQueue.isNotEmpty()) {
+//        val (current, currentDistance) = priorityQueue.poll()
+//
+//        // ゴールに到達したら探索を終了（早期終了）
+//        if (current == goal) break
+//
+//        // すでに最短経路が確定したノードをスキップ
+//        if (currentDistance > distances.getValue(current)) continue
+//
+//        graph[current]?.forEach { edge ->
+//            val newDistance = currentDistance + edge.weight
+//            if (newDistance < distances.getValue(edge.to)) {
+//                distances[edge.to] = newDistance
+//                previousNodes[edge.to] = current
+//                priorityQueue.add(edge.to to newDistance)
+//            }
+//        }
+//    }
+//
+//    return constructPath(previousNodes, start, goal, distances[goal] ?: Int.MAX_VALUE)
+//}
+
 
 fun constructPath(prev: Map<String, String?>, start: String, goal: String, distance: Int): Pair<List<String>, Int>? {
     if (distance == Int.MAX_VALUE) return null
@@ -253,7 +386,7 @@ fun constructPath(prev: Map<String, String?>, start: String, goal: String, dista
 }
 
 
-
+//a
 //@Composable
 //fun Page1Screen() {
 //    val context = LocalContext.current
