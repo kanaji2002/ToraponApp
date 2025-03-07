@@ -11,6 +11,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -61,6 +62,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.navigation.compose.rememberNavController
 import java.util.PriorityQueue
 import kotlin.math.abs
+
+import android.os.Build
+import android.view.View
+import android.view.WindowInsets
+import android.view.WindowInsetsController
+
+
+
+
 data class Edge(val to:String, val weight: Int)
 
 // ----------- MainActivity クラスを追加 -----------
@@ -76,6 +86,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
         // 位置情報の権限をリクエスト
         requestLocationPermission()
 
@@ -83,6 +94,31 @@ class MainActivity : ComponentActivity() {
             MyTabletApp()
 
 
+        }
+    }
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            hideSystemUI()
+        }
+    }
+
+
+
+    private fun hideSystemUI() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.let {
+                it.hide(WindowInsets.Type.systemBars()) // ステータスバー & ナビゲーションバーを隠す
+                it.systemBarsBehavior =
+                    WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                    View.SYSTEM_UI_FLAG_FULLSCREEN
+                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    )
         }
     }
 
@@ -231,12 +267,12 @@ fun bSplineInterpolation(points: List<Pair<Float, Float>>, degree: Int = 3, numP
 val graph = mapOf(
     "A" to listOf(Edge("B", 4), Edge("C", 2), Edge("F", 6)),
     "B" to listOf(Edge("A", 4), Edge("C", 5), Edge("D", 10), Edge("G", 8)),
-    "C" to listOf(Edge("A", 2), Edge("B", 5), Edge("D", 3), Edge("E", 7)),
-    "D" to listOf(Edge("H", 10), Edge("C", 3), Edge("E", 8), Edge("H", 6)),
-    "E" to listOf(Edge("F", 7), Edge("D", 8), Edge("I", 4)),
-    "F" to listOf(Edge("A", 6), Edge("G", 5), Edge("J", 9)),
-    "G" to listOf(Edge("B", 8), Edge("F", 5), Edge("H", 4), Edge("K", 6)),
-    "H" to listOf(Edge("D", 6), Edge("G", 4), Edge("I", 7), Edge("L", 5)),
+//    "C" to listOf(Edge("A", 2), Edge("B", 5), Edge("D", 3), Edge("E", 7)),
+//    "D" to listOf(Edge("H", 10), Edge("C", 3), Edge("E", 8), Edge("H", 6)),
+//    "E" to listOf(Edge("F", 7), Edge("D", 8), Edge("I", 4)),
+//    "F" to listOf(Edge("A", 6), Edge("G", 5), Edge("J", 9)),
+//    "G" to listOf(Edge("B", 8), Edge("F", 5), Edge("H", 4), Edge("K", 6)),
+//    "H" to listOf(Edge("D", 6), Edge("G", 4), Edge("I", 7), Edge("L", 5)),
 //    "I" to listOf(Edge("E", 4), Edge("H", 7), Edge("M", 8)),
 //    "J" to listOf(Edge("F", 9), Edge("K", 3), Edge("N", 10)),
 //    "K" to listOf(Edge("G", 6), Edge("J", 3), Edge("L", 2), Edge("O", 7)),
@@ -260,59 +296,74 @@ val graph = mapOf(
 
 @Composable
 fun Page1Screen() {
-
-
     var startLocation by remember { mutableStateOf("A") }
     var goalLocation by remember { mutableStateOf("G") }
     var path by remember { mutableStateOf<List<String>?>(null) }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("現在地: $startLocation", fontSize = 20.sp)
-        Text("目的地: $goalLocation", fontSize = 20.sp)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        // 背景画像
+        Image(
+            painter = painterResource(id = R.drawable.map2), // ここに背景画像のリソースIDを指定
+            contentDescription = "背景画像",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
 
-        Button(onClick = {
-//            val result = dijkstra(graph, startLocation, goalLocation)
-            val result = aStar(graph, startLocation, goalLocation)
-            path = result?.first
-        }) {
-            Text("最短経路を計算")
-        }
+        // 画面上のコンテンツ
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Text("現在地: $startLocation", fontSize = 20.sp, color = Color.White)
+            Text("目的地: $goalLocation", fontSize = 20.sp, color = Color.White)
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (path != null) {
-            val points = path!!.mapIndexed { index, node ->
-                Pair(index * 100f + 50f, (node[0] - 'A') * 100f + 50f)
+            Button(onClick = {
+                val result = aStar(graph, startLocation, goalLocation)
+                path = result?.first
+            }) {
+                Text("最短経路を計算")
             }
 
-            val smoothPath = bSplineInterpolation(points)
+            Spacer(modifier = Modifier.height(16.dp))
 
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val paint = Paint().apply {
-                    color = Color.Blue
-                    strokeWidth = 5f
-                    style = PaintingStyle.Stroke
+            if (path != null) {
+                val points = path!!.mapIndexed { index, node ->
+                    Pair(index * 100f + 50f, (node[0] - 'A') * 100f + 50f)
                 }
 
-                val pathObj = Path().apply {
-                    if (smoothPath.isNotEmpty()) {
-                        moveTo(smoothPath[0].first, smoothPath[0].second)
-                        smoothPath.forEach { (x, y) ->
-                            lineTo(x, y)
+                val smoothPath = bSplineInterpolation(points)
+
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    val paint = Paint().apply {
+                        color = Color.Blue
+                        strokeWidth = 5f
+                        style = PaintingStyle.Stroke
+                    }
+
+                    val pathObj = Path().apply {
+                        if (smoothPath.isNotEmpty()) {
+                            moveTo(smoothPath[0].first, smoothPath[0].second)
+                            smoothPath.forEach { (x, y) ->
+                                lineTo(x, y)
+                            }
                         }
                     }
+
+                    drawPath(
+                        path = pathObj,
+                        color = Color.Blue,
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 5f)
+                    )
                 }
-
-                drawPath(
-                    path = pathObj,
-                    color = Color.Blue, // ここを Paint ではなく Color に変更
-                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 5f) // Stroke を適用
-                )
-
             }
         }
     }
 }
+
 
 fun lineTo(x: Float, y: Float) {
 
