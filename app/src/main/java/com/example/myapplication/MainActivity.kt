@@ -51,10 +51,14 @@ import android.view.WindowInsetsController
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.location.LocationServices
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.drawscope.Stroke
 import com.google.android.gms.location.FusedLocationProviderClient
+import kotlinx.coroutines.delay
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -306,7 +310,14 @@ fun Page1Screen() {
     val context = LocalContext.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     var locationText by remember { mutableStateOf("位置情報未取得") }
-    var permissionGranted by remember { mutableStateOf(false) }
+    val permissionGranted = remember {
+        mutableStateOf(
+            ActivityCompat.checkSelfPermission(
+                context, Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
 
     // **MutableState の変更点**
     val currentX = remember { mutableStateOf(1280f) }
@@ -316,13 +327,17 @@ fun Page1Screen() {
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
-        permissionGranted = isGranted
+        permissionGranted.value = isGranted
     }
 
-    // **LaunchedEffect で currentPosition の変更をログに出力**
-    LaunchedEffect(currentX.value, currentY.value) {
-        Log.d("Canvas", "更新された位置: X=${currentX.value}, Y=${currentY.value}")
+    LaunchedEffect(Unit) {
+        requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
     }
+
+
+
+
+
 
     // 位置情報を取得する関数
     fun fetchLocation(
@@ -358,10 +373,26 @@ fun Page1Screen() {
         }
     }
 
+
+
+    LaunchedEffect(permissionGranted.value) {
+        while (permissionGranted.value) {
+            fetchLocation(fusedLocationClient) { newText, newX, newY ->
+                locationText = newText
+                currentX.value = newX
+                currentY.value = newY
+            }
+            delay(5000) // 10秒ごとに更新
+        }
+    }
+
+
+
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        // 📌 1. 背景画像（マップ）
+        //  1. 背景画像（マップ）
         Image(
             painter = painterResource(id = R.drawable.map2), // マップ画像
             contentDescription = "マップ画像",
@@ -369,18 +400,64 @@ fun Page1Screen() {
             modifier = Modifier.fillMaxSize()
         )
 
-        // 📌 2. `Canvas` を `Box` の最上位レイヤーに配置
+//        //  2. `Canvas` を `Box` の最上位レイヤーに配置
+//        Canvas(modifier = Modifier.matchParentSize()) {
+//            Log.d("Canvas", "描画処理実行: X=${currentX.value}, Y=${currentY.value}")
+//
+//            drawCircle(
+//                color = Color.Red,
+//                radius = 20f,
+//                center = androidx.compose.ui.geometry.Offset(currentX.value, currentY.value)
+//            )
+//        }
+
+
+
+        //  2. `Canvas` を `Box` の最上位レイヤーに配置
+        val colorState = remember { mutableStateOf(0) }
+
+        val animatedColor by animateColorAsState(
+            targetValue = when (colorState.value) {
+                0 -> Color.Red   // 青
+                1 -> Color.Red  // 白
+                2 -> Color.White
+                else -> Color.White// 水色
+            },
+            animationSpec = tween(durationMillis = 700), // 500ms で色を変化
+            label = "Blinking Animation"
+        )
+
+        // 🔹 500ms ごとに `colorState` を 0 → 1 → 2 → 0 ... とループさせる
+        LaunchedEffect(Unit) {
+            while (true) {
+                delay(200) // 0.5秒ごとに色を変更
+                colorState.value = (colorState.value + 1) % 4 // 0 → 1 → 2 → 0...
+            }
+        }
+
         Canvas(modifier = Modifier.matchParentSize()) {
             Log.d("Canvas", "描画処理実行: X=${currentX.value}, Y=${currentY.value}")
 
+
+            // **外枠の白い円**
             drawCircle(
-                color = Color.Red,
-                radius = 20f,
+                color = Color.White, // 外枠の色
+                radius = 20f, // 内部の円より少し大きく
+                center = androidx.compose.ui.geometry.Offset(currentX.value, currentY.value),
+                style = Stroke(width = 5f) // 4px の枠線
+            )
+
+            // **塗りつぶしの円（アニメーションカラー）**
+            drawCircle(
+                color = animatedColor,
+                radius = 20f, // 内側の円
                 center = androidx.compose.ui.geometry.Offset(currentX.value, currentY.value)
             )
+
         }
 
-        // 📌 3. 画面上の情報表示
+
+        //  3. 画面上の情報表示
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -388,34 +465,18 @@ fun Page1Screen() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = "現在地情報", style = MaterialTheme.typography.headlineMedium)
+//            Text(text = "現在地情報", style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(20.dp))
-            Text(
-                text = locationText,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodyLarge
-            )
+//            Text(
+//                text = locationText,
+//                color = MaterialTheme.colorScheme.primary,
+//                style = MaterialTheme.typography.bodyLarge
+//            )
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 📌 4. 位置情報取得ボタン
-            Button(onClick = {
-                Log.d("ButtonClick", "ボタンが押されました - permissionGranted: $permissionGranted")
-                if (permissionGranted) {
-                    fetchLocation(fusedLocationClient) { newText, newX, newY ->
-                        Log.d("LocationUpdate", "画面に反映: $newText")
-                        locationText = newText
 
-                        // 📌 `MutableState` の中身を更新
-                        currentX.value = newX
-                        currentY.value = newY
-                        Log.d("Canvas", "更新された位置: X=${currentX.value}, Y=${currentY.value}")
-                    }
-                } else {
-                    requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                }
-            }) {
-                Text("現在地を取得")
-            }
+
+
         }
     }
 }
