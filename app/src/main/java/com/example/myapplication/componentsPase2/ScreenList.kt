@@ -184,9 +184,11 @@ fun Spot_selection_screen(navController: NavController, backcolor: Color, assetP
                 Spacer(modifier = Modifier.height(10.dp))
                 JsonTextDisplay(folderName,"sentence.json","top_explanation", 20, Color.Black)
             }
+
+
         }
     }
-    Spacer(modifier = Modifier.height(5.dp))
+    Spacer(modifier = Modifier.height(20.dp))
 }
 // 幅いっぱいに直線を引く
 @Composable

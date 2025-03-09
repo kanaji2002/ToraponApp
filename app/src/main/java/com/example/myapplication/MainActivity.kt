@@ -98,84 +98,143 @@ val mapRegions = listOf(
 
 // ----------- MainActivity クラスを追加 -----------
 class MainActivity : ComponentActivity() {
+
+
+    private val REQUIRED_PERMISSIONS = arrayOf(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 位置情報の権限をリクエスト
+        requestLocationPermission()
         setContent {
             MyTabletApp()
         }
     }
-}
 
-// ---------- 1. メイン画面で Scaffold + NavHost + BottomBar を構築 ----------
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MyTabletApp() {
-    val navController = rememberNavController()
 
-    Scaffold(
-        bottomBar = { MyBottomBar(navController = navController) }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = BottomItem.Page1.route,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            // 5つのページを定義
-            composable(BottomItem.Page1.route) { Page1Screen() }
-            composable(BottomItem.Page2.route) { Page2Screen() }
-            composable(BottomItem.Page3.route) { Page3Screen() }
-            composable(BottomItem.Page4.route) { Page4Screen() }
-            composable(BottomItem.Page5.route) { Page5Screen() }
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            hideSystemUI()
         }
     }
-}
-
-// ---------- 2. 下部バー (NavigationBar) ----------
-@Composable
-fun MyBottomBar(navController: NavHostController) {
-    val items = listOf(
-        BottomItem.Page1,
-        BottomItem.Page2,
-        BottomItem.Page3,
-        BottomItem.Page4,
-        BottomItem.Page5,
-    )
-
-    val currentRoute = currentRoute(navController)
-
-    NavigationBar {
-        items.forEach { item ->
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        painter = painterResource(item.iconRes),
-                        contentDescription = item.label
+    private fun hideSystemUI() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.let {
+                it.hide(WindowInsets.Type.systemBars()) // ステータスバー & ナビゲーションバーを隠す
+                it.systemBarsBehavior =
+                    WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                    View.SYSTEM_UI_FLAG_FULLSCREEN
+                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                     )
-                },
-                label = null,
-                selected = currentRoute == item.route,
-                onClick = {
-                    navController.navigate(item.route) {
-                        launchSingleTop = true
-                        restoreState = true
-                        popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
+        }
+    }
+
+    private fun requestLocationPermission() {
+        val requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            val allGranted = permissions.all { it.value }
+            if (!allGranted) {
+                println("位置情報の権限が拒否されました")
+            }
+        }
+
+        if (!allPermissionsGranted()) {
+            requestPermissionLauncher.launch(REQUIRED_PERMISSIONS)
+        }
+    }
+
+    private fun allPermissionsGranted(): Boolean {
+        return REQUIRED_PERMISSIONS.all { permission ->
+            ActivityCompat.checkSelfPermission(
+                this,
+                permission
+            ) == PackageManager.PERMISSION_GRANTED
+        }
+
+
+    }
+
+    // ---------- 1. メイン画面で Scaffold + NavHost + BottomBar を構築 ----------
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun MyTabletApp() {
+        val navController = rememberNavController()
+
+        Scaffold(
+            bottomBar = { MyBottomBar(navController = navController) }
+        ) { innerPadding ->
+            NavHost(
+                navController = navController,
+                startDestination = BottomItem.Page1.route,
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                // 5つのページを定義
+                composable(BottomItem.Page1.route) { Page1Screen() }
+                composable(BottomItem.Page2.route) { Page2Screen() }
+                composable(BottomItem.Page3.route) { Page3Screen() }
+                composable(BottomItem.Page4.route) { Page4Screen() }
+                composable(BottomItem.Page5.route) { Page5Screen() }
+            }
+        }
+    }
+
+    // ---------- 2. 下部バー (NavigationBar) ----------
+    @Composable
+    fun MyBottomBar(navController: NavHostController) {
+        val items = listOf(
+            BottomItem.Page1,
+            BottomItem.Page2,
+            BottomItem.Page3,
+            BottomItem.Page4,
+            BottomItem.Page5,
+        )
+
+        val currentRoute = currentRoute(navController)
+
+        NavigationBar {
+            items.forEach { item ->
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            painter = painterResource(item.iconRes),
+                            contentDescription = item.label
+                        )
+                    },
+                    label = null,
+                    selected = currentRoute == item.route,
+                    onClick = {
+                        navController.navigate(item.route) {
+                            launchSingleTop = true
+                            restoreState = true
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
         }
     }
-}
 
-// ---------- 3. アイテム定義 ----------
-sealed class BottomItem(val route: String, val iconRes: Int, val label: String) {
-    object Page1 : BottomItem("page1", R.drawable.distination, "Page1")
-    object Page2 : BottomItem("page2", R.drawable.picture, "Page2")
-    object Page3 : BottomItem("page3", R.drawable.coin, "Page3")
-    object Page4 : BottomItem("page4", R.drawable.shop, "Page4")
-    object Page5 : BottomItem("page5", R.drawable.three_dot, "Page5")
-}
+    // ---------- 3. アイテム定義 ----------
+    sealed class BottomItem(val route: String, val iconRes: Int, val label: String) {
+        object Page1 : BottomItem("page1", R.drawable.distination, "Page1")
+        object Page2 : BottomItem("page2", R.drawable.picture, "Page2")
+        object Page3 : BottomItem("page3", R.drawable.coin, "Page3")
+        object Page4 : BottomItem("page4", R.drawable.shop, "Page4")
+        object Page5 : BottomItem("page5", R.drawable.three_dot, "Page5")
+    }
 
 // ---------- 4. 5つのページ (サンプル) ----------
 
@@ -183,182 +242,184 @@ sealed class BottomItem(val route: String, val iconRes: Int, val label: String) 
 
 // ===================================================================================
 
-// 観光スポット一覧ページ(担当:Osaka)
-@Composable
-fun Page2Screen() {
-    // 設定
-    val navController = rememberNavController()
-    val backgroundColor = Color.Yellow.copy(alpha = 0.1f)// 観光スポット一覧ページの背景色
-    val selectionBackgroundColor = Color.LightGray.copy(alpha = 0.5f)// 選択画面背景色
-    Page2AppNavHost(navController,backgroundColor, selectionBackgroundColor)
-}
-
-@Composable
-fun Page3Screen() {
-    Text("Page3 Screen")
-}
-
-@Composable
-fun Page4Screen() {
-    Text("Page4 Screen")
-}
-
-@Composable
-fun Page5Screen() {
-    Text("Page5 Screen")
-}
-
-// ---------- 5. 現在のルートを取得するヘルパー ----------
-@Composable
-fun currentRoute(navController: NavHostController): String? {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    return navBackStackEntry?.destination?.route
-}
-
-
-
-fun interpolateXY(lat: Double, lon: Double, mapVertices: List<MapVertex>): Pair<Float, Float> {
-    val minLat = mapVertices.minOf { it.lat }
-    val maxLat = mapVertices.maxOf { it.lat }
-    val minLon = mapVertices.minOf { it.lon }
-    val maxLon = mapVertices.maxOf { it.lon }
-
-    val minX = mapVertices.minOf { it.x }
-    val maxX = mapVertices.maxOf { it.x }
-    val minY = mapVertices.minOf { it.y }
-    val maxY = mapVertices.maxOf { it.y }
-
-    val x = minX + ((lat - minLat) / (maxLat - minLat)) * (maxX - minX)
-    val y = minY + ((lon - minLon) / (maxLon - minLon)) * (maxY - minY)
-
-    return Pair(x.toFloat(), y.toFloat())
-}
-
-
-// 地域を特定する関数（MapVertexリストを返す）
-fun findContainingRegion(lat: Double, lon: Double): List<MapVertex>? {
-    for (region in mapRegions) {
-        val latitudes = region.map { it.lat }
-        val longitudes = region.map { it.lon }
-
-        val minLat = latitudes.minOrNull() ?: continue
-        val maxLat = latitudes.maxOrNull() ?: continue
-        val minLon = longitudes.minOrNull() ?: continue
-        val maxLon = longitudes.maxOrNull() ?: continue
-
-        if (lat in minLat..maxLat && lon in minLon..maxLon) {
-            return region
-        }
+    // 観光スポット一覧ページ(担当:Osaka)
+    @Composable
+    fun Page2Screen() {
+        // 設定
+        val navController = rememberNavController()
+        val backgroundColor = Color.Yellow.copy(alpha = 0.1f)// 観光スポット一覧ページの背景色
+        val selectionBackgroundColor = Color.LightGray.copy(alpha = 0.5f)// 選択画面背景色
+        Page2AppNavHost(navController, backgroundColor, selectionBackgroundColor)
     }
-    return null
-}
 
+    @Composable
+    fun Page3Screen() {
+        Text("Page3 Screen")
+    }
 
-fun findNearestRegion(lat: Double, lon: Double): List<MapVertex> {
-    return mapRegions.minByOrNull { region ->
-        region.minOf { vertex ->
-            sqrt((vertex.lat - lat).pow(2) + (vertex.lon - lon).pow(2))
-        }
-    } ?: mapRegions.first()
-}
+    @Composable
+    fun Page4Screen() {
+        Text("Page4 Screen")
+    }
 
+    @Composable
+    fun Page5Screen() {
+        Text("Page5 Screen")
+    }
 
-
-// `Page1Screen` の実装
-@Composable
-fun Page1Screen() {
-    val context = LocalContext.current
-    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-    var locationText by remember { mutableStateOf("位置情報未取得") }
-    val permissionGranted = remember {
-        mutableStateOf(
-            ActivityCompat.checkSelfPermission(
-                context, Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        )
+    // ---------- 5. 現在のルートを取得するヘルパー ----------
+    @Composable
+    fun currentRoute(navController: NavHostController): String? {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        return navBackStackEntry?.destination?.route
     }
 
 
-    // **MutableState の変更点**
-    val currentX = remember { mutableStateOf(1280f) }
-    val currentY = remember { mutableStateOf(720f) }
+    fun interpolateXY(lat: Double, lon: Double, mapVertices: List<MapVertex>): Pair<Float, Float> {
+        val minLat = mapVertices.minOf { it.lat }
+        val maxLat = mapVertices.maxOf { it.lat }
+        val minLon = mapVertices.minOf { it.lon }
+        val maxLon = mapVertices.maxOf { it.lon }
 
-    // 位置情報の権限をリクエスト
-    val requestPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        permissionGranted.value = isGranted
+        val minX = mapVertices.minOf { it.x }
+        val maxX = mapVertices.maxOf { it.x }
+        val minY = mapVertices.minOf { it.y }
+        val maxY = mapVertices.maxOf { it.y }
+
+        val x = minX + ((lat - minLat) / (maxLat - minLat)) * (maxX - minX)
+        val y = minY + ((lon - minLon) / (maxLon - minLon)) * (maxY - minY)
+
+        return Pair(x.toFloat(), y.toFloat())
     }
 
-    LaunchedEffect(Unit) {
-        requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-    }
 
+    // 地域を特定する関数（MapVertexリストを返す）
+    fun findContainingRegion(lat: Double, lon: Double): List<MapVertex>? {
+        for (region in mapRegions) {
+            val latitudes = region.map { it.lat }
+            val longitudes = region.map { it.lon }
 
+            val minLat = latitudes.minOrNull() ?: continue
+            val maxLat = latitudes.maxOrNull() ?: continue
+            val minLon = longitudes.minOrNull() ?: continue
+            val maxLon = longitudes.maxOrNull() ?: continue
 
-
-
-
-    // 位置情報を取得する関数
-    fun fetchLocation(
-        fusedLocationClient: FusedLocationProviderClient,
-        onLocationReceived: (String, Float, Float) -> Unit
-    ) {
-        fusedLocationClient.getCurrentLocation(
-            com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY, null
-        ).addOnSuccessListener { location ->
-            if (location != null) {
-                val latitude = location.latitude
-                val longitude = location.longitude
-                val region = findContainingRegion(latitude, longitude) ?: findNearestRegion(latitude, longitude)
-
-                // ログ出力
-                Log.d("Location", "緯度: $latitude, 経度: $longitude")
-
-                // マップ座標に変換
-
-                val (newX, newY) = region.let { interpolateXY(latitude, longitude, it) }
-                    ?: Pair(450f, 450f)  // 万が一エラーが出た場合のデフォルト値
-
-                // UIの状態を更新
-                val newText = "緯度: $latitude, 経度: $longitude"
-                onLocationReceived(newText, newX, newY)
-            } else {
-                Log.e("Location", "位置情報を取得できませんでした")
-                onLocationReceived("位置情報を取得できません", 450f, 450f)
+            if (lat in minLat..maxLat && lon in minLon..maxLon) {
+                return region
             }
-        }.addOnFailureListener {
-            Log.e("Location", "エラー発生: ${it.message}")
-            onLocationReceived("位置情報の取得に失敗しました", 450f, 450f)
         }
+        return null
     }
 
 
-
-    LaunchedEffect(permissionGranted.value) {
-        while (permissionGranted.value) {
-            fetchLocation(fusedLocationClient) { newText, newX, newY ->
-                locationText = newText
-                currentX.value = newX
-                currentY.value = newY
+    fun findNearestRegion(lat: Double, lon: Double): List<MapVertex> {
+        return mapRegions.minByOrNull { region ->
+            region.minOf { vertex ->
+                sqrt((vertex.lat - lat).pow(2) + (vertex.lon - lon).pow(2))
             }
-            delay(5000) // 10秒ごとに更新
-        }
+        } ?: mapRegions.first()
     }
 
 
+    // `Page1Screen` の実装
+    @Composable
+    fun Page1Screen() {
+        val context = LocalContext.current
+        val fusedLocationClient =
+            remember { LocationServices.getFusedLocationProviderClient(context) }
+        var locationText by remember { mutableStateOf("位置情報未取得") }
+        val permissionGranted = remember {
+            mutableStateOf(
+                ActivityCompat.checkSelfPermission(
+                    context, Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            )
+        }
 
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        //  1. 背景画像（マップ）
-        Image(
-            painter = painterResource(id = R.drawable.map2), // マップ画像
-            contentDescription = "マップ画像",
-            contentScale = ContentScale.Crop,
+        // **MutableState の変更点**
+        val currentX = remember { mutableStateOf(1280f) }
+        val currentY = remember { mutableStateOf(720f) }
+
+        // 位置情報の権限をリクエスト
+        val requestPermissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            permissionGranted.value = isGranted
+        }
+
+        LaunchedEffect(Unit) {
+            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+
+
+
+
+
+        // 位置情報を取得する関数
+        fun fetchLocation(
+            fusedLocationClient: FusedLocationProviderClient,
+            onLocationReceived: (String, Float, Float) -> Unit
+        ) {
+            fusedLocationClient.getCurrentLocation(
+                com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY, null
+            ).addOnSuccessListener { location ->
+                if (location != null) {
+                    val latitude = location.latitude
+                    val longitude = location.longitude
+                    val region = findContainingRegion(latitude, longitude) ?: findNearestRegion(
+                        latitude,
+                        longitude
+                    )
+
+                    // ログ出力
+                    Log.d("Location", "緯度: $latitude, 経度: $longitude")
+
+                    // マップ座標に変換
+
+                    val (newX, newY) = region.let { interpolateXY(latitude, longitude, it) }
+                        ?: Pair(450f, 450f)  // 万が一エラーが出た場合のデフォルト値
+
+                    // UIの状態を更新
+                    val newText = "緯度: $latitude, 経度: $longitude"
+                    onLocationReceived(newText, newX, newY)
+                } else {
+                    Log.e("Location", "位置情報を取得できませんでした")
+                    onLocationReceived("位置情報を取得できません", 450f, 450f)
+                }
+            }.addOnFailureListener {
+                Log.e("Location", "エラー発生: ${it.message}")
+                onLocationReceived("位置情報の取得に失敗しました", 450f, 450f)
+            }
+        }
+
+
+
+        LaunchedEffect(permissionGranted.value) {
+            while (permissionGranted.value) {
+                fetchLocation(fusedLocationClient) { newText, newX, newY ->
+                    locationText = newText
+                    currentX.value = newX
+                    currentY.value = newY
+                }
+                delay(5000) // 10秒ごとに更新
+            }
+        }
+
+
+
+
+        Box(
             modifier = Modifier.fillMaxSize()
-        )
+        ) {
+            //  1. 背景画像（マップ）
+            Image(
+                painter = painterResource(id = R.drawable.map2), // マップ画像
+                contentDescription = "マップ画像",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
 
 //        //  2. `Canvas` を `Box` の最上位レイヤーに配置
 //        Canvas(modifier = Modifier.matchParentSize()) {
@@ -372,71 +433,74 @@ fun Page1Screen() {
 //        }
 
 
+            //  2. `Canvas` を `Box` の最上位レイヤーに配置
+            val colorState = remember { mutableStateOf(0) }
 
-        //  2. `Canvas` を `Box` の最上位レイヤーに配置
-        val colorState = remember { mutableStateOf(0) }
+            val animatedColor by animateColorAsState(
+                targetValue = when (colorState.value) {
+                    0 -> Color.Red   // 青
+                    1 -> Color.Red  // 白
+                    2 -> Color.White
+                    else -> Color.White// 水色
+                },
+                animationSpec = tween(durationMillis = 700), // 500ms で色を変化
+                label = "Blinking Animation"
+            )
 
-        val animatedColor by animateColorAsState(
-            targetValue = when (colorState.value) {
-                0 -> Color.Red   // 青
-                1 -> Color.Red  // 白
-                2 -> Color.White
-                else -> Color.White// 水色
-            },
-            animationSpec = tween(durationMillis = 700), // 500ms で色を変化
-            label = "Blinking Animation"
-        )
-
-        // 🔹 500ms ごとに `colorState` を 0 → 1 → 2 → 0 ... とループさせる
-        LaunchedEffect(Unit) {
-            while (true) {
-                delay(200) // 0.5秒ごとに色を変更
-                colorState.value = (colorState.value + 1) % 4 // 0 → 1 → 2 → 0...
+            // 🔹 500ms ごとに `colorState` を 0 → 1 → 2 → 0 ... とループさせる
+            LaunchedEffect(Unit) {
+                while (true) {
+                    delay(200) // 0.5秒ごとに色を変更
+                    colorState.value = (colorState.value + 1) % 4 // 0 → 1 → 2 → 0...
+                }
             }
-        }
 
-        Canvas(modifier = Modifier.matchParentSize()) {
-            Log.d("Canvas", "描画処理実行: X=${currentX.value}, Y=${currentY.value}")
-
-
-            // **外枠の白い円**
-            drawCircle(
-                color = Color.White, // 外枠の色
-                radius = 20f, // 内部の円より少し大きく
-                center = androidx.compose.ui.geometry.Offset(currentX.value, currentY.value),
-                style = Stroke(width = 5f) // 4px の枠線
-            )
-
-            // **塗りつぶしの円（アニメーションカラー）**
-            drawCircle(
-                color = animatedColor,
-                radius = 20f, // 内側の円
-                center = androidx.compose.ui.geometry.Offset(currentX.value, currentY.value)
-            )
-
-        }
+            Canvas(modifier = Modifier.matchParentSize()) {
+                Log.d("Canvas", "描画処理実行: X=${currentX.value}, Y=${currentY.value}")
 
 
-        //  3. 画面上の情報表示
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
+                // **外枠の白い円**
+                drawCircle(
+                    color = Color.White, // 外枠の色
+                    radius = 20f, // 内部の円より少し大きく
+                    center = androidx.compose.ui.geometry.Offset(currentX.value, currentY.value),
+                    style = Stroke(width = 5f) // 4px の枠線
+                )
+
+                // **塗りつぶしの円（アニメーションカラー）**
+                drawCircle(
+                    color = animatedColor,
+                    radius = 20f, // 内側の円
+                    center = androidx.compose.ui.geometry.Offset(currentX.value, currentY.value)
+                )
+
+            }
+
+
+            //  3. 画面上の情報表示
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
 //            Text(text = "現在地情報", style = MaterialTheme.typography.headlineMedium)
-            Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 //            Text(
 //                text = locationText,
 //                color = MaterialTheme.colorScheme.primary,
 //                style = MaterialTheme.typography.bodyLarge
 //            )
-            Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
 
-
-
+            }
         }
     }
+
 }
+
+
+
+
