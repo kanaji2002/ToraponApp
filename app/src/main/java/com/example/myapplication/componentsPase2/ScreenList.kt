@@ -143,38 +143,55 @@ fun Spot_selection_screen(navController: NavController, backcolor: Color, assetP
         Column(
             modifier = Modifier.padding(start = 30.dp, top = 18.dp, end = 30.dp, bottom = 30.dp)
         ){
-            // スポット名
-            JsonTextDisplay(folderName,"sentence.json","name_furigana", 14, Color.Black)
-            JsonTextDisplay(folderName,"sentence.json","name", 35, Color.Black)
-            Spacer(modifier = Modifier.height(10.dp))
-            // 詳細ボタン・経路ボタン
-            Row{
-                Button(
-                    onClick = {
-                        navController.navigate("Detail/${folderName}")
-                    },
-                    modifier = Modifier
-                        .height(50.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Gray,
-                        contentColor = Color.Black
-                    )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            ){
+                // スポット名（左側2/3）
+                Column(
+                    modifier = Modifier.weight(2f) // 左側2/3の幅
                 ) {
-                    Text(text = "　詳細　", fontSize = 20.sp)
+                    JsonTextDisplay(folderName, "sentence.json", "name_furigana", 14, Color.Black)
+                    JsonTextDisplay(folderName, "sentence.json", "name", 35, Color.Black)
                 }
-                Spacer(modifier = Modifier.width(16.dp))
-                Button(
-                    onClick = { /* ボタンの処理 */ },
+
+                // 詳細ボタン・経路ボタン（右側1/3）
+                Row(
                     modifier = Modifier
-                        .height(50.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Red,
-                        contentColor = Color.Black
-                    )
+                        .weight(1f) // 右側1/3の幅
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
                 ) {
-                    Text(text = "　経路　", fontSize = 20.sp)
+                    Button(
+                        onClick = {
+                            navController.navigate("Detail/${folderName}")
+                        },
+                        modifier = Modifier
+                            .height(50.dp)
+                            .weight(1f), // ボタン幅を均等に
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Gray,
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Text(text = "詳細", fontSize = 20.sp)
+                    }
+                    Spacer(modifier = Modifier.width(10.dp)) // ボタン同士の間隔
+                    Button(
+                        onClick = { /* ボタンの処理 */ },
+                        modifier = Modifier
+                            .height(50.dp)
+                            .weight(1f), // ボタン幅を均等に
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red,
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Text(text = "経路", fontSize = 20.sp)
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
