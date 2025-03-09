@@ -1,12 +1,16 @@
 package com.example.myapplication
-
-
-//地図
 import android.Manifest
 import android.content.pm.PackageManager
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.Image
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
@@ -17,6 +21,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,15 +36,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+//Osaka import(追加)
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.Text
+import com.example.myapplication.componentsPase2.Page2AppNavHost // AppNavHost.ktからインポート
+
 //Osaka import(追加)
 
 import androidx.compose.ui.layout.ContentScale
@@ -55,8 +63,10 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import kotlinx.coroutines.delay
 import kotlin.math.pow
@@ -88,65 +98,10 @@ val mapRegions = listOf(
 
 // ----------- MainActivity クラスを追加 -----------
 class MainActivity : ComponentActivity() {
-
-    private val REQUIRED_PERMISSIONS = arrayOf(
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_COARSE_LOCATION
-    )
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // 位置情報の権限をリクエスト
-        requestLocationPermission()
-
         setContent {
             MyTabletApp()
-
-
-        }
-    }
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) {
-            hideSystemUI()
-        }
-    }
-
-    private fun hideSystemUI() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.let {
-                it.hide(WindowInsets.Type.systemBars()) // ステータスバー & ナビゲーションバーを隠す
-                it.systemBarsBehavior =
-                    WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = (
-                    View.SYSTEM_UI_FLAG_FULLSCREEN
-                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    )
-        }
-    }
-
-    private fun requestLocationPermission() {
-        val requestPermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) { permissions ->
-            val allGranted = permissions.all { it.value }
-            if (!allGranted) {
-                println("位置情報の権限が拒否されました")
-            }
-        }
-
-        if (!allPermissionsGranted()) {
-            requestPermissionLauncher.launch(REQUIRED_PERMISSIONS)
-        }
-    }
-
-    private fun allPermissionsGranted(): Boolean {
-        return REQUIRED_PERMISSIONS.all { permission ->
-            ActivityCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
         }
     }
 }
@@ -228,9 +183,14 @@ sealed class BottomItem(val route: String, val iconRes: Int, val label: String) 
 
 // ===================================================================================
 
+// 観光スポット一覧ページ(担当:Osaka)
 @Composable
 fun Page2Screen() {
-    Text("Page2 Screen")
+    // 設定
+    val navController = rememberNavController()
+    val backgroundColor = Color.Yellow.copy(alpha = 0.1f)// 観光スポット一覧ページの背景色
+    val selectionBackgroundColor = Color.LightGray.copy(alpha = 0.5f)// 選択画面背景色
+    Page2AppNavHost(navController,backgroundColor, selectionBackgroundColor)
 }
 
 @Composable
@@ -245,7 +205,7 @@ fun Page4Screen() {
 
 @Composable
 fun Page5Screen() {
-    Text("Page5 Screeeeen")
+    Text("Page5 Screen")
 }
 
 // ---------- 5. 現在のルートを取得するヘルパー ----------
