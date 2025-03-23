@@ -1,4 +1,4 @@
-package com.example.myapplication.componentsPase2
+package com.example.myapplication.componentsPage2
 
 import android.content.Context
 import android.util.Log

@@ -6,24 +6,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.Image
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -44,8 +37,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 //Osaka import(追加)
 import androidx.compose.ui.graphics.Color
-import androidx.compose.material3.Text
-import com.example.myapplication.componentsPase2.Page2AppNavHost // AppNavHost.ktからインポート
+import com.example.myapplication.componentsPage2.Page2AppNavHost // AppNavHost.ktからインポート
+import com.example.myapplication.componentsPage1.Page1AppNavHost // AppNavHost.ktからインポート
 
 //Osaka import(追加)
 
@@ -62,39 +55,18 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.runtime.*
 
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import kotlinx.coroutines.delay
-import kotlin.math.pow
-import kotlin.math.sqrt
+
 
 data class Edge(val to:String, val weight: Int)
 
 // マップの頂点データ（緯度, 経度, X座標, Y座標）
 data class MapVertex(val lat: Double, val lon: Double, val x: Float, val y: Float)
-// マップの領域データ
-//val mapRegions = listOf(
-//    listOf(
-//        MapVertex(34.3290, 134.0435, 673f, 720f), // A（南西）
-//        MapVertex(34.3290, 134.0450, 1280f, 720f), // B（南東）
-//        MapVertex(34.3310, 134.0435, 673f, 350f), // C（北西）
-//        MapVertex(34.3310, 134.0450, 1280f, 350f)  // D（北東）
-//    )
-//)
-
-val mapRegions = listOf(
-    listOf(
-        MapVertex(34.32809341019379, 134.04192367609065, 0f, 0f), // A（南西）
-        MapVertex(34.326880679260256, 134.04433338991794, 0f, 720f), // B（南東）
-        MapVertex(34.332735039918816, 134.04281425912956, 1280f, 0f), // C（北西）
-        MapVertex(34.33230692874956, 134.0465035767585, 1280f, 720f)  // D（北東）
-    )
-)
-
 
 // ----------- MainActivity クラスを追加 -----------
 class MainActivity : ComponentActivity() {
@@ -236,11 +208,17 @@ class MainActivity : ComponentActivity() {
         object Page5 : BottomItem("page5", R.drawable.three_dot, "Page5")
     }
 
-// ---------- 4. 5つのページ (サンプル) ----------
-
-    //aStar() を関数化してcomponent_page1/page1ktに移した．
 
 // ===================================================================================
+
+    @Composable
+    fun Page1Screen() {
+        // 設定
+        val navController = rememberNavController()
+        val backgroundColor = Color.Yellow.copy(alpha = 0.1f)// 観光スポット一覧ページの背景色
+        val selectionBackgroundColor = Color.LightGray.copy(alpha = 0.5f)// 選択画面背景色
+        Page1AppNavHost(navController, backgroundColor, selectionBackgroundColor)
+    }
 
     // 観光スポット一覧ページ(担当:Osaka)
     @Composable
@@ -274,230 +252,6 @@ class MainActivity : ComponentActivity() {
         return navBackStackEntry?.destination?.route
     }
 
-
-    fun interpolateXY(lat: Double, lon: Double, mapVertices: List<MapVertex>): Pair<Float, Float> {
-        val minLat = mapVertices.minOf { it.lat }
-        val maxLat = mapVertices.maxOf { it.lat }
-        val minLon = mapVertices.minOf { it.lon }
-        val maxLon = mapVertices.maxOf { it.lon }
-
-        val minX = mapVertices.minOf { it.x }
-        val maxX = mapVertices.maxOf { it.x }
-        val minY = mapVertices.minOf { it.y }
-        val maxY = mapVertices.maxOf { it.y }
-
-        val x = minX + ((lat - minLat) / (maxLat - minLat)) * (maxX - minX)
-        val y = minY + ((lon - minLon) / (maxLon - minLon)) * (maxY - minY)
-
-        return Pair(x.toFloat(), y.toFloat())
-    }
-
-
-    // 地域を特定する関数（MapVertexリストを返す）
-    fun findContainingRegion(lat: Double, lon: Double): List<MapVertex>? {
-        for (region in mapRegions) {
-            val latitudes = region.map { it.lat }
-            val longitudes = region.map { it.lon }
-
-            val minLat = latitudes.minOrNull() ?: continue
-            val maxLat = latitudes.maxOrNull() ?: continue
-            val minLon = longitudes.minOrNull() ?: continue
-            val maxLon = longitudes.maxOrNull() ?: continue
-
-            if (lat in minLat..maxLat && lon in minLon..maxLon) {
-                return region
-            }
-        }
-        return null
-    }
-
-
-    fun findNearestRegion(lat: Double, lon: Double): List<MapVertex> {
-        return mapRegions.minByOrNull { region ->
-            region.minOf { vertex ->
-                sqrt((vertex.lat - lat).pow(2) + (vertex.lon - lon).pow(2))
-            }
-        } ?: mapRegions.first()
-    }
-
-
-    // `Page1Screen` の実装
-    @Composable
-    fun Page1Screen() {
-        val context = LocalContext.current
-        val fusedLocationClient =
-            remember { LocationServices.getFusedLocationProviderClient(context) }
-        var locationText by remember { mutableStateOf("位置情報未取得") }
-        val permissionGranted = remember {
-            mutableStateOf(
-                ActivityCompat.checkSelfPermission(
-                    context, Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-            )
-        }
-
-
-        // **MutableState の変更点**
-        val currentX = remember { mutableStateOf(1280f) }
-        val currentY = remember { mutableStateOf(720f) }
-
-        // 位置情報の権限をリクエスト
-        val requestPermissionLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            permissionGranted.value = isGranted
-        }
-
-        LaunchedEffect(Unit) {
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
-
-
-
-
-
-
-        // 位置情報を取得する関数
-        fun fetchLocation(
-            fusedLocationClient: FusedLocationProviderClient,
-            onLocationReceived: (String, Float, Float) -> Unit
-        ) {
-            fusedLocationClient.getCurrentLocation(
-                com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY, null
-            ).addOnSuccessListener { location ->
-                if (location != null) {
-                    val latitude = location.latitude
-                    val longitude = location.longitude
-                    val region = findContainingRegion(latitude, longitude) ?: findNearestRegion(
-                        latitude,
-                        longitude
-                    )
-
-                    // ログ出力
-                    Log.d("Location", "緯度: $latitude, 経度: $longitude")
-
-                    // マップ座標に変換
-
-                    val (newX, newY) = region.let { interpolateXY(latitude, longitude, it) }
-                        ?: Pair(450f, 450f)  // 万が一エラーが出た場合のデフォルト値
-
-                    // UIの状態を更新
-                    val newText = "緯度: $latitude, 経度: $longitude"
-                    onLocationReceived(newText, newX, newY)
-                } else {
-                    Log.e("Location", "位置情報を取得できませんでした")
-                    onLocationReceived("位置情報を取得できません", 450f, 450f)
-                }
-            }.addOnFailureListener {
-                Log.e("Location", "エラー発生: ${it.message}")
-                onLocationReceived("位置情報の取得に失敗しました", 450f, 450f)
-            }
-        }
-
-
-
-        LaunchedEffect(permissionGranted.value) {
-            while (permissionGranted.value) {
-                fetchLocation(fusedLocationClient) { newText, newX, newY ->
-                    locationText = newText
-                    currentX.value = newX
-                    currentY.value = newY
-                }
-                delay(5000) // 10秒ごとに更新
-            }
-        }
-
-
-
-
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            //  1. 背景画像（マップ）
-            Image(
-                painter = painterResource(id = R.drawable.map2), // マップ画像
-                contentDescription = "マップ画像",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-
-//        //  2. `Canvas` を `Box` の最上位レイヤーに配置
-//        Canvas(modifier = Modifier.matchParentSize()) {
-//            Log.d("Canvas", "描画処理実行: X=${currentX.value}, Y=${currentY.value}")
-//
-//            drawCircle(
-//                color = Color.Red,
-//                radius = 20f,
-//                center = androidx.compose.ui.geometry.Offset(currentX.value, currentY.value)
-//            )
-//        }
-
-
-            //  2. `Canvas` を `Box` の最上位レイヤーに配置
-            val colorState = remember { mutableStateOf(0) }
-
-            val animatedColor by animateColorAsState(
-                targetValue = when (colorState.value) {
-                    0 -> Color.Red   // 青
-                    1 -> Color.Red  // 白
-                    2 -> Color.White
-                    else -> Color.White// 水色
-                },
-                animationSpec = tween(durationMillis = 700), // 500ms で色を変化
-                label = "Blinking Animation"
-            )
-
-            // 🔹 500ms ごとに `colorState` を 0 → 1 → 2 → 0 ... とループさせる
-            LaunchedEffect(Unit) {
-                while (true) {
-                    delay(200) // 0.5秒ごとに色を変更
-                    colorState.value = (colorState.value + 1) % 4 // 0 → 1 → 2 → 0...
-                }
-            }
-
-            Canvas(modifier = Modifier.matchParentSize()) {
-                Log.d("Canvas", "描画処理実行: X=${currentX.value}, Y=${currentY.value}")
-
-
-                // **外枠の白い円**
-                drawCircle(
-                    color = Color.White, // 外枠の色
-                    radius = 20f, // 内部の円より少し大きく
-                    center = androidx.compose.ui.geometry.Offset(currentX.value, currentY.value),
-                    style = Stroke(width = 5f) // 4px の枠線
-                )
-
-                // **塗りつぶしの円（アニメーションカラー）**
-                drawCircle(
-                    color = animatedColor,
-                    radius = 20f, // 内側の円
-                    center = androidx.compose.ui.geometry.Offset(currentX.value, currentY.value)
-                )
-
-            }
-
-
-            //  3. 画面上の情報表示
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-//            Text(text = "現在地情報", style = MaterialTheme.typography.headlineMedium)
-                Spacer(modifier = Modifier.height(20.dp))
-//            Text(
-//                text = locationText,
-//                color = MaterialTheme.colorScheme.primary,
-//                style = MaterialTheme.typography.bodyLarge
-//            )
-                Spacer(modifier = Modifier.height(20.dp))
-
-
-            }
-        }
-    }
 
 }
 

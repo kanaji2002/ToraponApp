@@ -1,4 +1,4 @@
-package com.example.myapplication.componentsPase2
+package com.example.myapplication.componentsPage2
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
