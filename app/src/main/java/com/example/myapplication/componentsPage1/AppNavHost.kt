@@ -1,4 +1,5 @@
 package com.example.myapplication.componentsPage1
+import androidx.compose.ui.zIndex
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -9,13 +10,24 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,9 +41,16 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import androidx.core.app.ActivityCompat
 import androidx.navigation.NavHostController
+import androidx.compose.ui.unit.Dp
+
+import androidx.compose.ui.platform.LocalDensity
+
+
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.myapplication.R
@@ -41,6 +60,21 @@ import com.google.android.gms.location.LocationServices
 //import findNearestRegion
 //import interpolateXY
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.draw.clip
+
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
+
 
 // 観光スポット一覧ページと詳細ページの設定
 @Composable
@@ -128,9 +162,9 @@ fun Page1AppNavHost(navController: NavHostController, backgroundColor: Color, se
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        //  1. 背景画像（マップ）
+        // 1. 背景画像（マップ）
         Image(
-            painter = painterResource(id = R.drawable.map2), // マップ画像
+            painter = painterResource(id = R.drawable.map2),
             contentDescription = "マップ画像",
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
@@ -138,29 +172,71 @@ fun Page1AppNavHost(navController: NavHostController, backgroundColor: Color, se
 
 
 
-        //  2. `Canvas` を `Box` の最上位レイヤーに配置
+            SpotMarkerWithPopup(
+                buttonOffsetX = 100.dp,
+                buttonOffsetY = 200.dp,
+                popupOffsetX = 0.dp,
+                popupOffsetY = (-100).dp,
+                pictureResId = R.drawable.spot3,
+                descriptionTitle = "商工奨励館",
+                descriptionKana = "しょうこうしょうれいかん",
+                descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。",
+                onRouteClick = { /* 経路案内 */ }
+            )
+
+        SpotMarkerWithPopup(
+            buttonOffsetX = 400.dp,
+            buttonOffsetY = 200.dp,
+            popupOffsetX = 0.dp,
+            popupOffsetY = (-100).dp,
+            pictureResId = R.drawable.spot3,
+            descriptionTitle = "商工奨励館",
+            descriptionKana = "しょうこうしょうれいかん",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。",
+            onRouteClick = { /* 経路案内 */ }
+        )
+
+        SpotMarkerWithPopup(
+            buttonOffsetX = 200.dp,
+            buttonOffsetY = 200.dp,
+            popupOffsetX = 0.dp,
+            popupOffsetY = (+100).dp,
+            pictureResId = R.drawable.spot3,
+            descriptionTitle = "商工奨励館",
+            descriptionKana = "しょうこうしょうれいかん",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。",
+            onRouteClick = { /* 経路案内 */ }
+        )
+
+
+    }
+
+
+
+
+    //  2. `Canvas` を `Box` の最上位レイヤーに配置
         val colorState = remember { mutableStateOf(0) }
 
         val animatedColor by animateColorAsState(
             targetValue = when (colorState.value) {
-                0 -> Color.Red   // 青
-                1 -> Color.Red  // 白
+                0 -> Color.Red
+                1 -> Color.Red
                 2 -> Color.White
-                else -> Color.White// 水色
+                else -> Color.White
             },
-            animationSpec = tween(durationMillis = 700), // 500ms で色を変化
+            animationSpec = tween(durationMillis = 1400), // 500ms で色を変化
             label = "Blinking Animation"
         )
 
         // 🔹 500ms ごとに `colorState` を 0 → 1 → 2 → 0 ... とループさせる
         LaunchedEffect(Unit) {
             while (true) {
-                delay(200) // 0.5秒ごとに色を変更
+                delay(350) // 0.5秒ごとに色を変更
                 colorState.value = (colorState.value + 1) % 4 // 0 → 1 → 2 → 0...
             }
         }
 
-        Canvas(modifier = Modifier.matchParentSize()) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
             Log.d("Canvas", "描画処理実行: X=${currentX.value}, Y=${currentY.value}")
 
 
@@ -192,14 +268,234 @@ fun Page1AppNavHost(navController: NavHostController, backgroundColor: Color, se
         ) {
 //            Text(text = "現在地情報", style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(20.dp))
-//            Text(
-//                text = locationText,
-//                color = MaterialTheme.colorScheme.primary,
-//                style = MaterialTheme.typography.bodyLarge
-//            )
+
             Spacer(modifier = Modifier.height(20.dp))
 
 
         }
     }
+
+
+
+@Composable
+fun SpotInfoPopup(
+    pictureResId: Int,
+    offsetX: Dp,
+    offsetY: Dp,
+    descriptionTitle: String,
+    descriptionKana: String,
+    descriptionBody: String,
+    onClose: () -> Unit,
+    onRouteClick: () -> Unit
+) {
+    val density = LocalDensity.current
+    val popupOffset = with(density) {
+        IntOffset(offsetX.roundToPx(), offsetY.roundToPx())
+    }
+
+    Popup(
+        alignment = Alignment.Center,
+        offset = popupOffset,
+        onDismissRequest = onClose
+    ) {
+        Box {
+            // バツボタン
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(x = 16.dp, y = (-16).dp)
+                    .zIndex(2f)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.batsu),
+                    contentDescription = "閉じる",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFFFFF88))
+                        .clickable { onClose() }
+                )
+            }
+
+            // ポップアップ内容
+            Box(
+                modifier = Modifier
+                    .width(400.dp)
+                    .background(Color.White, shape = RoundedCornerShape(16.dp))
+                    .border(1.dp, Color.Gray, shape = RoundedCornerShape(16.dp))
+                    .padding(16.dp)
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Image(
+                        painter = painterResource(id = pictureResId),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp)
+                            .clip(RoundedCornerShape(12.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Column(modifier = Modifier.padding(horizontal = 8.dp)) {
+                        Text(descriptionKana, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                        Text(descriptionTitle, style = MaterialTheme.typography.titleMedium)
+                        Text(descriptionBody, style = MaterialTheme.typography.bodyMedium)
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = onRouteClick,
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .width(100.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935)),
+                        shape = RoundedCornerShape(24.dp)
+                    ) {
+                        Text("経路")
+                    }
+                }
+            }
+        }
+    }
 }
+
+@Composable
+fun MapCircleButton(
+    offsetX: Dp,
+    offsetY: Dp,
+    size: Dp = 44.dp,
+    onClick: () -> Unit
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "blueGlow")
+
+    val colorState2 = remember { mutableStateOf(0) }
+    val glowColor by animateColorAsState(
+        targetValue = when (colorState2.value) {
+            0 -> Color(0xFF30A7FF)
+            1 -> Color(0xFF30A7FF)
+            2 -> Color.White.copy(alpha = 0.6f)
+            else -> Color.White.copy(alpha = 0.1f)
+        },
+        animationSpec = tween(durationMillis = 1400),
+        label = "AnimatedGlowColor"
+    )
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(350)
+            colorState2.value = (colorState2.value + 1) % 4
+        }
+    }
+
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0.2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1400, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "GlowAlpha"
+    )
+
+    val glowScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.6f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1400, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "GlowScale"
+    )
+
+    Box(
+        modifier = Modifier
+            .offset(x = offsetX, y = offsetY)
+            .size(size),
+        contentAlignment = Alignment.Center
+    ) {
+        // グローエフェクト
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    scaleX = glowScale
+                    scaleY = glowScale
+                    alpha = glowAlpha
+                }
+        ) {
+            drawCircle(
+                color = glowColor,
+                radius = size.toPx() / 2f,
+                center = center
+            )
+        }
+
+        // 外枠（白い固定円）
+        Canvas(modifier = Modifier.size(size + 4.dp)) {
+            drawCircle(
+                color = Color.White,
+                radius = (size.toPx() + 4.dp.toPx()) / 2f,
+                center = center,
+                style = Stroke(width = 4f)
+            )
+        }
+
+        // 中心のクリック可能な丸（色：アニメーション）
+        Box(
+            modifier = Modifier
+                .size(size)
+                .clip(CircleShape)
+                .background(glowColor)
+                .clickable { onClick() }
+        )
+    }
+}
+
+
+
+@Composable
+fun SpotMarkerWithPopup(
+    buttonOffsetX: Dp,
+    buttonOffsetY: Dp,
+    popupOffsetX: Dp = 0.dp,
+    popupOffsetY: Dp = 0.dp,
+//    buttonLabel: String = "i",
+    pictureResId: Int,
+    descriptionTitle: String,
+    descriptionKana: String,
+    descriptionBody: String,
+    onRouteClick: () -> Unit
+) {
+    var showPopup by remember { mutableStateOf(false) }
+
+    // 丸いボタン
+    MapCircleButton(
+
+        offsetX = buttonOffsetX,
+        offsetY = buttonOffsetY,
+
+//        edgeColor = Color.Transparent,     // 外側は透明
+
+        onClick = { showPopup = true }
+    )
+
+
+    // ポップアップ
+    if (showPopup) {
+        SpotInfoPopup(
+            pictureResId = pictureResId,
+            offsetX = popupOffsetX,
+            offsetY = popupOffsetY,
+            descriptionTitle = descriptionTitle,
+            descriptionKana = descriptionKana,
+            descriptionBody = descriptionBody,
+            onClose = { showPopup = false },
+            onRouteClick = onRouteClick
+        )
+    }
+}
+
+
