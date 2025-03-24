@@ -171,42 +171,203 @@ fun Page1AppNavHost(navController: NavHostController, backgroundColor: Color, se
         )
 
 
-
-            SpotMarkerWithPopup(
-                buttonOffsetX = 100.dp,
-                buttonOffsetY = 200.dp,
-                popupOffsetX = 0.dp,
-                popupOffsetY = (-100).dp,
-                pictureResId = R.drawable.spot3,
-                descriptionTitle = "商工奨励館",
-                descriptionKana = "しょうこうしょうれいかん",
-                descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。",
-                onRouteClick = { /* 経路案内 */ }
-            )
-
+     // ポップアップ関数のスタート
+        //1255*700がマップの最大エリア(左上(0,0)スタートの右X，下Yが正）
         SpotMarkerWithPopup(
-            buttonOffsetX = 400.dp,
-            buttonOffsetY = 200.dp,
-            popupOffsetX = 0.dp,
-            popupOffsetY = (-100).dp,
-            pictureResId = R.drawable.spot3,
+            buttonOffsetX = 767.dp,
+            buttonOffsetY = 544.dp,
+            popupOffsetX = -300.dp,
+            popupOffsetY = (0).dp,
+            pictureResId = R.drawable.spot1,
             descriptionTitle = "商工奨励館",
             descriptionKana = "しょうこうしょうれいかん",
-            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
             onRouteClick = { /* 経路案内 */ }
         )
 
         SpotMarkerWithPopup(
-            buttonOffsetX = 200.dp,
-            buttonOffsetY = 200.dp,
-            popupOffsetX = 0.dp,
-            popupOffsetY = (+100).dp,
+            buttonOffsetX = 785.dp,
+            buttonOffsetY = 446.dp,
+            popupOffsetX = -300.dp,
+            popupOffsetY = (0).dp,
+            pictureResId = R.drawable.spot2,
+            descriptionTitle = "商工奨励館",
+            descriptionKana = "しょうこうしょうれいかん",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
+            onRouteClick = { /* 経路案内 */ }
+        )
+
+        SpotMarkerWithPopup(
+            buttonOffsetX = 697.dp,
+            buttonOffsetY = 369.dp,
+            popupOffsetX = 300.dp,
+            popupOffsetY = (0).dp,
             pictureResId = R.drawable.spot3,
             descriptionTitle = "商工奨励館",
             descriptionKana = "しょうこうしょうれいかん",
-            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
             onRouteClick = { /* 経路案内 */ }
         )
+
+        SpotMarkerWithPopup(
+            buttonOffsetX = 654.dp,
+            buttonOffsetY = 478.dp,
+            popupOffsetX = 300.dp,
+            popupOffsetY = (0).dp,
+            pictureResId = R.drawable.spot4,
+            descriptionTitle = "商工奨励館",
+            descriptionKana = "しょうこうしょうれいかん",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
+            onRouteClick = { /* 経路案内 */ }
+        )
+
+
+        SpotMarkerWithPopup(
+            buttonOffsetX = 591.dp,
+            buttonOffsetY = 413.dp,
+            popupOffsetX = 300.dp,
+            popupOffsetY = (0).dp,
+            pictureResId = R.drawable.spot5,
+            descriptionTitle = "商工奨励館",
+            descriptionKana = "しょうこうしょうれいかん",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
+            onRouteClick = { /* 経路案内 */ }
+        )
+
+        SpotMarkerWithPopup(
+            buttonOffsetX = 608.dp,
+            buttonOffsetY = 227.dp,
+            popupOffsetX = 300.dp,
+            popupOffsetY = (0).dp,
+            pictureResId = R.drawable.spot6,
+            descriptionTitle = "商工奨励館",
+            descriptionKana = "しょうこうしょうれいかん",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
+            onRouteClick = { /* 経路案内 */ }
+        )
+
+        SpotMarkerWithPopup(
+            buttonOffsetX = 483.dp,
+            buttonOffsetY = 304.dp,
+            popupOffsetX = 300.dp,
+            popupOffsetY = (0).dp,
+            pictureResId = R.drawable.spot7,
+            descriptionTitle = "商工奨励館",
+            descriptionKana = "しょうこうしょうれいかん",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
+            onRouteClick = { /* 経路案内 */ }
+        )
+
+        SpotMarkerWithPopup(
+            buttonOffsetX = 412.dp,
+            buttonOffsetY = 155.dp,
+            popupOffsetX = 300.dp,
+            popupOffsetY = (0).dp,
+            pictureResId = R.drawable.spot8,
+            descriptionTitle = "商工奨励館",
+            descriptionKana = "しょうこうしょうれいかん",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
+            onRouteClick = { /* 経路案内 */ }
+        )
+
+        SpotMarkerWithPopup(
+            buttonOffsetX = 225.dp,
+            buttonOffsetY = 261.dp,
+            popupOffsetX = 300.dp,
+            popupOffsetY = (0).dp,
+            pictureResId = R.drawable.spot9,
+            descriptionTitle = "商工奨励館",
+            descriptionKana = "しょうこうしょうれいかん",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
+            onRouteClick = { /* 経路案内 */ }
+        )
+
+        SpotMarkerWithPopup(
+            buttonOffsetX = 214.dp,
+            buttonOffsetY = 326.dp,
+            popupOffsetX = 300.dp,
+            popupOffsetY = (0).dp,
+            pictureResId = R.drawable.spot10,
+            descriptionTitle = "商工奨励館",
+            descriptionKana = "しょうこうしょうれいかん",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
+            onRouteClick = { /* 経路案内 */ }
+        )
+
+        SpotMarkerWithPopup(
+            buttonOffsetX = 143.dp,
+            buttonOffsetY = 505.dp,
+            popupOffsetX = 300.dp,
+            popupOffsetY = (0).dp,
+            pictureResId = R.drawable.spot12,
+            descriptionTitle = "商工奨励館",
+            descriptionKana = "しょうこうしょうれいかん",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
+            onRouteClick = { /* 経路案内 */ }
+        )
+
+        SpotMarkerWithPopup(
+            buttonOffsetX = 87.dp,
+            buttonOffsetY = 430.dp,
+            popupOffsetX = 300.dp,
+            popupOffsetY = (0).dp,
+            pictureResId = R.drawable.spot13,
+            descriptionTitle = "商工奨励館",
+            descriptionKana = "しょうこうしょうれいかん",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
+            onRouteClick = { /* 経路案内 */ }
+        )
+
+        SpotMarkerWithPopup(
+            buttonOffsetX = 112.dp,
+            buttonOffsetY = 575.dp,
+            popupOffsetX = 300.dp,
+            popupOffsetY = (0).dp,
+            pictureResId = R.drawable.spot14,
+            descriptionTitle = "商工奨励館",
+            descriptionKana = "しょうこうしょうれいかん",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
+            onRouteClick = { /* 経路案内 */ }
+        )
+
+        SpotMarkerWithPopup(
+            buttonOffsetX = 467.dp,
+            buttonOffsetY = 533.dp,
+            popupOffsetX = 300.dp,
+            popupOffsetY = (0).dp,
+            pictureResId = R.drawable.spot15,
+            descriptionTitle = "商工奨励館",
+            descriptionKana = "しょうこうしょうれいかん",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
+            onRouteClick = { /* 経路案内 */ }
+        )
+
+        SpotMarkerWithPopup(
+            buttonOffsetX = 977.dp,
+            buttonOffsetY = 509.dp,
+            popupOffsetX = -300.dp,
+            popupOffsetY = (0).dp,
+            pictureResId = R.drawable.spot16,
+            descriptionTitle = "商工奨励館",
+            descriptionKana = "しょうこうしょうれいかん",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
+            onRouteClick = { /* 経路案内 */ }
+        )
+
+        SpotMarkerWithPopup(
+            buttonOffsetX = 864.dp,
+            buttonOffsetY = 592.dp,
+            popupOffsetX = -300.dp,
+            popupOffsetY = (0).dp,
+            pictureResId = R.drawable.spot17,
+            descriptionTitle = "商工奨励館",
+            descriptionKana = "しょうこうしょうれいかん",
+            descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
+            onRouteClick = { /* 経路案内 */ }
+        )
+
+
+
 
 
     }
@@ -331,7 +492,7 @@ fun SpotInfoPopup(
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(150.dp)
+                            .height(276.dp)
                             .clip(RoundedCornerShape(12.dp)),
                         contentScale = ContentScale.Crop
                     )
