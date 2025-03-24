@@ -170,22 +170,48 @@ fun Page1AppNavHost(navController: NavHostController, backgroundColor: Color, se
             modifier = Modifier.fillMaxSize()
         )
 
+        val selectedSpotId = remember { mutableStateOf<String?>(null) }
+        // 🔵 左上の戻るボタン
 
-     // ポップアップ関数のスタート
+// 🔵 左上の戻るボタン（トグル式にする）
+        Button(
+            onClick = {
+                selectedSpotId.value = if (selectedSpotId.value == "HIDE_ALL") null else "HIDE_ALL"
+            },
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.TopStart)
+        ) {
+            Text(
+                if (selectedSpotId.value == "HIDE_ALL") "ボタンを再表示" else "ボタンを非表示"
+            )
+        }
+
+
+
+
+
+        // ポップアップ関数のスタート
         //1255*700がマップの最大エリア(左上(0,0)スタートの右X，下Yが正）
         SpotMarkerWithPopup(
+            spotId = "spot1",
+            selectedSpotId = selectedSpotId.value,
+            onSelect = { selectedSpotId.value = it },
             buttonOffsetX = 767.dp,
             buttonOffsetY = 544.dp,
             popupOffsetX = -300.dp,
             popupOffsetY = (0).dp,
             pictureResId = R.drawable.spot1,
-            descriptionTitle = "商工奨励館",
-            descriptionKana = "しょうこうしょうれいかん",
+            descriptionTitle = "讃岐民芸館",
+            descriptionKana = "さぬきみんげいかん",
             descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
             onRouteClick = { /* 経路案内 */ }
         )
 
         SpotMarkerWithPopup(
+            spotId = "spot2",
+            selectedSpotId = selectedSpotId.value,
+            onSelect = { selectedSpotId.value = it },
             buttonOffsetX = 785.dp,
             buttonOffsetY = 446.dp,
             popupOffsetX = -300.dp,
@@ -198,170 +224,212 @@ fun Page1AppNavHost(navController: NavHostController, backgroundColor: Color, se
         )
 
         SpotMarkerWithPopup(
+            spotId = "spot3",
+            selectedSpotId = selectedSpotId.value,
+            onSelect = { selectedSpotId.value = it },
             buttonOffsetX = 697.dp,
             buttonOffsetY = 369.dp,
-            popupOffsetX = 300.dp,
+            popupOffsetX = -300.dp,
             popupOffsetY = (0).dp,
             pictureResId = R.drawable.spot3,
-            descriptionTitle = "商工奨励館",
-            descriptionKana = "しょうこうしょうれいかん",
+            descriptionTitle = "お手植松",
+            descriptionKana = "おてうえまつ",
             descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
             onRouteClick = { /* 経路案内 */ }
         )
 
         SpotMarkerWithPopup(
+            spotId = "spot4",
+            selectedSpotId = selectedSpotId.value,
+            onSelect = { selectedSpotId.value = it },
             buttonOffsetX = 654.dp,
             buttonOffsetY = 478.dp,
             popupOffsetX = 300.dp,
             popupOffsetY = (0).dp,
             pictureResId = R.drawable.spot4,
-            descriptionTitle = "商工奨励館",
-            descriptionKana = "しょうこうしょうれいかん",
+            descriptionTitle = "鶴亀松",
+            descriptionKana = "つるかめまつ",
             descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
             onRouteClick = { /* 経路案内 */ }
         )
 
 
         SpotMarkerWithPopup(
+            spotId = "spot5",
+            selectedSpotId = selectedSpotId.value,
+            onSelect = { selectedSpotId.value = it },
             buttonOffsetX = 591.dp,
             buttonOffsetY = 413.dp,
             popupOffsetX = 300.dp,
             popupOffsetY = (0).dp,
             pictureResId = R.drawable.spot5,
-            descriptionTitle = "商工奨励館",
-            descriptionKana = "しょうこうしょうれいかん",
+            descriptionTitle = "箱松・屏風松",
+            descriptionKana = "はこまつ・びょうぶまつ",
             descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
             onRouteClick = { /* 経路案内 */ }
         )
 
         SpotMarkerWithPopup(
+            spotId = "spot6",
+            selectedSpotId = selectedSpotId.value,
+            onSelect = { selectedSpotId.value = it },
             buttonOffsetX = 608.dp,
             buttonOffsetY = 227.dp,
             popupOffsetX = 300.dp,
             popupOffsetY = (0).dp,
             pictureResId = R.drawable.spot6,
-            descriptionTitle = "商工奨励館",
-            descriptionKana = "しょうこうしょうれいかん",
+            descriptionTitle = "百花園（薬園）跡",
+            descriptionKana = "ひゃっかえんあと",
             descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
             onRouteClick = { /* 経路案内 */ }
         )
 
         SpotMarkerWithPopup(
+            spotId = "spot7",
+            selectedSpotId = selectedSpotId.value,
+            onSelect = { selectedSpotId.value = it },
             buttonOffsetX = 483.dp,
             buttonOffsetY = 304.dp,
             popupOffsetX = 300.dp,
             popupOffsetY = (0).dp,
             pictureResId = R.drawable.spot7,
-            descriptionTitle = "商工奨励館",
-            descriptionKana = "しょうこうしょうれいかん",
+            descriptionTitle = "日暮亭",
+            descriptionKana = "ひぐらしてい",
             descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
             onRouteClick = { /* 経路案内 */ }
         )
 
         SpotMarkerWithPopup(
+            spotId = "spot8",
+            selectedSpotId = selectedSpotId.value,
+            onSelect = { selectedSpotId.value = it },
             buttonOffsetX = 412.dp,
             buttonOffsetY = 155.dp,
             popupOffsetX = 300.dp,
             popupOffsetY = (0).dp,
             pictureResId = R.drawable.spot8,
-            descriptionTitle = "商工奨励館",
-            descriptionKana = "しょうこうしょうれいかん",
+            descriptionTitle = "旧日暮亭",
+            descriptionKana = "きゅうひぐらしてい",
             descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
             onRouteClick = { /* 経路案内 */ }
         )
 
         SpotMarkerWithPopup(
+            spotId = "spot9",
+            selectedSpotId = selectedSpotId.value,
+            onSelect = { selectedSpotId.value = it },
             buttonOffsetX = 225.dp,
             buttonOffsetY = 261.dp,
             popupOffsetX = 300.dp,
             popupOffsetY = (0).dp,
             pictureResId = R.drawable.spot9,
-            descriptionTitle = "商工奨励館",
-            descriptionKana = "しょうこうしょうれいかん",
+            descriptionTitle = "掬月亭",
+            descriptionKana = "きくげつてい",
             descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
             onRouteClick = { /* 経路案内 */ }
         )
 
         SpotMarkerWithPopup(
+            spotId = "spot10",
+            selectedSpotId = selectedSpotId.value,
+            onSelect = { selectedSpotId.value = it },
             buttonOffsetX = 214.dp,
             buttonOffsetY = 326.dp,
             popupOffsetX = 300.dp,
             popupOffsetY = (0).dp,
             pictureResId = R.drawable.spot10,
-            descriptionTitle = "商工奨励館",
-            descriptionKana = "しょうこうしょうれいかん",
+            descriptionTitle = "根上五葉松",
+            descriptionKana = "ねあがりごようまつ",
             descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
             onRouteClick = { /* 経路案内 */ }
         )
 
         SpotMarkerWithPopup(
+            spotId = "spot12",
+            selectedSpotId = selectedSpotId.value,
+            onSelect = { selectedSpotId.value = it },
             buttonOffsetX = 143.dp,
             buttonOffsetY = 505.dp,
             popupOffsetX = 300.dp,
             popupOffsetY = (0).dp,
             pictureResId = R.drawable.spot12,
-            descriptionTitle = "商工奨励館",
-            descriptionKana = "しょうこうしょうれいかん",
+            descriptionTitle = "偃月橋",
+            descriptionKana = "えんげつきょう",
             descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
             onRouteClick = { /* 経路案内 */ }
         )
 
         SpotMarkerWithPopup(
+            spotId = "spot13",
+            selectedSpotId = selectedSpotId.value,
+            onSelect = { selectedSpotId.value = it },
             buttonOffsetX = 87.dp,
             buttonOffsetY = 430.dp,
             popupOffsetX = 300.dp,
             popupOffsetY = (0).dp,
             pictureResId = R.drawable.spot13,
-            descriptionTitle = "商工奨励館",
-            descriptionKana = "しょうこうしょうれいかん",
+            descriptionTitle = "楓岸",
+            descriptionKana = "ふうがん",
             descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
             onRouteClick = { /* 経路案内 */ }
         )
 
         SpotMarkerWithPopup(
+            spotId = "spot14",
+            selectedSpotId = selectedSpotId.value,
+            onSelect = { selectedSpotId.value = it },
             buttonOffsetX = 112.dp,
             buttonOffsetY = 575.dp,
             popupOffsetX = 300.dp,
             popupOffsetY = (0).dp,
             pictureResId = R.drawable.spot14,
-            descriptionTitle = "商工奨励館",
-            descriptionKana = "しょうこうしょうれいかん",
+            descriptionTitle = "飛来峰",
+            descriptionKana = "ひらいほう",
             descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
             onRouteClick = { /* 経路案内 */ }
         )
 
         SpotMarkerWithPopup(
+            spotId = "spot15",
+            selectedSpotId = selectedSpotId.value,
+            onSelect = { selectedSpotId.value = it },
             buttonOffsetX = 467.dp,
             buttonOffsetY = 533.dp,
             popupOffsetX = 300.dp,
             popupOffsetY = (0).dp,
             pictureResId = R.drawable.spot15,
-            descriptionTitle = "商工奨励館",
-            descriptionKana = "しょうこうしょうれいかん",
+            descriptionTitle = "芙蓉峰",
+            descriptionKana = "ふようほう",
             descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
             onRouteClick = { /* 経路案内 */ }
         )
 
         SpotMarkerWithPopup(
+            spotId = "spot16",
+            selectedSpotId = selectedSpotId.value,
+            onSelect = { selectedSpotId.value = it },
             buttonOffsetX = 977.dp,
             buttonOffsetY = 509.dp,
             popupOffsetX = -300.dp,
             popupOffsetY = (0).dp,
             pictureResId = R.drawable.spot16,
-            descriptionTitle = "商工奨励館",
-            descriptionKana = "しょうこうしょうれいかん",
+            descriptionTitle = "花しょうぶ園",
+            descriptionKana = "はなしょうぶえん",
             descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
             onRouteClick = { /* 経路案内 */ }
         )
 
         SpotMarkerWithPopup(
+            spotId = "spot17",
+            selectedSpotId = selectedSpotId.value,
+            onSelect = { selectedSpotId.value = it },
             buttonOffsetX = 864.dp,
             buttonOffsetY = 592.dp,
             popupOffsetX = -300.dp,
             popupOffsetY = (0).dp,
             pictureResId = R.drawable.spot17,
-            descriptionTitle = "商工奨励館",
-            descriptionKana = "しょうこうしょうれいかん",
+            descriptionTitle = "鴨場 ",
+            descriptionKana = "かもば",
             descriptionBody = "明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。明治32年に建築された建物で〜略〜楽しめます。",
             onRouteClick = { /* 経路案内 */ }
         )
@@ -500,12 +568,12 @@ fun SpotInfoPopup(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Column(modifier = Modifier.padding(horizontal = 8.dp)) {
-                        Text(descriptionKana, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
-                        Text(descriptionTitle, style = MaterialTheme.typography.titleMedium)
+                        Text(descriptionKana, style = MaterialTheme.typography.bodyMedium, color = Color.Black)
+                        Text(descriptionTitle, style = MaterialTheme.typography.titleLarge)
                         Text(descriptionBody, style = MaterialTheme.typography.bodyMedium)
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
                     Button(
                         onClick = onRouteClick,
@@ -617,35 +685,47 @@ fun MapCircleButton(
 
 
 
+
 @Composable
 fun SpotMarkerWithPopup(
+    spotId: String,
+    selectedSpotId: String?,
+    onSelect: (String?) -> Unit,
     buttonOffsetX: Dp,
     buttonOffsetY: Dp,
     popupOffsetX: Dp = 0.dp,
     popupOffsetY: Dp = 0.dp,
-//    buttonLabel: String = "i",
     pictureResId: Int,
     descriptionTitle: String,
     descriptionKana: String,
     descriptionBody: String,
     onRouteClick: () -> Unit
 ) {
-    var showPopup by remember { mutableStateOf(false) }
-
-    // 丸いボタン
-    MapCircleButton(
-
-        offsetX = buttonOffsetX,
-        offsetY = buttonOffsetY,
-
-//        edgeColor = Color.Transparent,     // 外側は透明
-
-        onClick = { showPopup = true }
-    )
 
 
-    // ポップアップ
-    if (showPopup) {
+    val isPopupVisible = selectedSpotId == spotId
+    val shouldShowButton = selectedSpotId == null || selectedSpotId == spotId || selectedSpotId == "ALL"
+
+// 🔕 すべて非表示の指示が出ている場合は return（何も描画しない）
+    if (selectedSpotId == "HIDE_ALL") return
+
+
+    // 🔵 ボタンは「何も選ばれていない」or「自分自身が選ばれている」ときに表示
+    if (shouldShowButton) {
+        MapCircleButton(
+            offsetX = buttonOffsetX,
+            offsetY = buttonOffsetY,
+            onClick = {
+                if (!isPopupVisible) {
+                    onSelect(spotId) // 自分が選ばれてないなら選択
+                }
+            }
+        )
+    }
+
+
+    // 🟡 ポップアップ表示
+    if (isPopupVisible) {
         SpotInfoPopup(
             pictureResId = pictureResId,
             offsetX = popupOffsetX,
@@ -653,10 +733,9 @@ fun SpotMarkerWithPopup(
             descriptionTitle = descriptionTitle,
             descriptionKana = descriptionKana,
             descriptionBody = descriptionBody,
-            onClose = { showPopup = false },
+            onClose = { onSelect(null) }, // 閉じたら全ボタンが復活
             onRouteClick = onRouteClick
         )
     }
 }
-
 
