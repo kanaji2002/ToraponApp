@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-02-24T10:50:11.273850900Z">
+        <DropdownSelection timestamp="2025-03-28T10:50:29.940280800Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Kanaji Rinntarou\.android\avd\Lenovo_Tab_M10_3rd_Gen_ZAAE0014JP_API_32.avd" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\rinnt\.android\avd\Lenovo_Tab_M10_3rd_Gen_ZAAE0014JP_API_32.avd" />
             </handle>
           </Target>
         </DropdownSelection>

@@ -60,6 +60,7 @@ fun Page2ScreenList(navController: NavController, mainColor: Color, subColor: Co
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(10.dp))
                 .background(Color.Green.copy(alpha = 0.2f))
+
         )
         Spacer(modifier = Modifier.height(15.dp))
         // assetフォルダ中のスポットを追加

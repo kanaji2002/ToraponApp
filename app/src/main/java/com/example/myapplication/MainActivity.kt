@@ -21,8 +21,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 //Osaka import(追加)
 import androidx.compose.ui.graphics.Color
-import com.example.myapplication.componentsPage2.Page2AppNavHost // AppNavHost.ktからインポート
 import com.example.myapplication.componentsPage1.Page1AppNavHost // AppNavHost.ktからインポート
+import com.example.myapplication.componentsPage2.Page2AppNavHost // AppNavHost.ktからインポート
+import com.example.myapplication.componentsPage5.Page5AppNavHost // AppNavHost.ktからインポート
+
 import com.example.myapplication.utils.REQUIRED_PERMISSIONS
 import com.example.myapplication.utils.allPermissionsGranted
 import com.example.myapplication.utils.hideSystemUI
@@ -160,10 +162,14 @@ class MainActivity : ComponentActivity() {
         Text("Page4 Screen")
     }
 
-    @Composable
-    fun Page5Screen() {
-        Text("Page5 Screen")
-    }
+@Composable
+fun Page5Screen() {
+    // 設定
+    val navController = rememberNavController()
+    val backgroundColor = Color.Yellow.copy(alpha = 0.1f)// 観光スポット一覧ページの背景色
+    val selectionBackgroundColor = Color.LightGray.copy(alpha = 0.5f)// 選択画面背景色
+    Page5AppNavHost(navController, backgroundColor, selectionBackgroundColor)
+}
 
     // ---------- 5. 現在のルートを取得するヘルパー ----------
     @Composable
