@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -46,9 +47,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.core.app.ActivityCompat
 import androidx.navigation.NavHostController
-import androidx.compose.ui.unit.Dp
-
+//import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.platform.LocalDensity
+// 🔵 左上の戻るボタン
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.foundation.BorderStroke
 
 
 import androidx.navigation.compose.NavHost
@@ -75,6 +78,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlin.math.sqrt
+import kotlin.math.pow
 
 // 観光スポット一覧ページと詳細ページの設定
 @Composable
@@ -183,21 +191,11 @@ fun Page1AppNavHost(navController: NavHostController, backgroundColor: Color, se
         )
 
         TopRightIconMenu(
-//            pictSelectedSpotId = pictSelectedSpotId.value,
-//            onPictSelect = {
-//                pictSelectedSpotId.value = if (pictSelectedSpotId.value == it) null else it
-//
-//                // 👇 ここで観光スポットボタンを非表示に
-//                if (pictSelectedSpotId.value != null) {
-//                    selectedSpotId.value = "HIDE_ALL"
-//                } else {
-//                    selectedSpotId.value = null
-//                }
-//            },
+
 
                 pictSelectedSpotId = pictSelectedSpotId.value,
                 onPictSelect = { pictSelectedSpotId.value = it },
-                selectedSpotId = selectedSpotId // ← 🔥 追加
+                selectedSpotId = selectedSpotId
             )
 
 
@@ -205,34 +203,27 @@ fun Page1AppNavHost(navController: NavHostController, backgroundColor: Color, se
 
 
 
-
-
-
-        // 🔵 左上の戻るボタン
-
-// 🔵 左上の戻るボタン（トグル式にする）
-        Button(
-            onClick = {
-                selectedSpotId.value = if (selectedSpotId.value == "HIDE_ALL") null else "HIDE_ALL"
-
-                pictSelectedSpotId.value = null
-            },
-            modifier = Modifier
-                .padding(16.dp)
-                .align(Alignment.TopStart)
-//                .clickable {
-//                    // 何かをクリックしたら観光スポットボタンを再表示する
-//                    selectedSpotId.value = null
-//                    pictSelectedSpotId.value = null
-//
-//                }
-
-        ) {
-            Text(
-                if (selectedSpotId.value == "HIDE_ALL") "ボタンを再表示" else "ボタンを非表示"
-            )
-        }
-
+                OutlinedButton(
+                    onClick = {
+                        selectedSpotId.value = if (selectedSpotId.value == "HIDE_ALL") null else "HIDE_ALL"
+                        pictSelectedSpotId.value = null
+                    },
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.TopStart)
+                        .height(55.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color(0xFFC9C9C9),
+                        contentColor = Color.Black
+                    ),
+                    border = BorderStroke(2.dp, Color.Black)
+                ) {
+                    Text(
+                        text = if (selectedSpotId.value == "HIDE_ALL") " ON " else "OFF",
+                        fontSize = 23.sp
+                    )
+                }
 
 
 
@@ -502,7 +493,7 @@ fun Page1AppNavHost(navController: NavHostController, backgroundColor: Color, se
                     iconNamePath = resId,
                     offsetX = position.first,
                     offsetY = position.second,
-                    size = 44.dp
+                    size = 52.dp
                 )
             }
         }
@@ -514,6 +505,23 @@ fun Page1AppNavHost(navController: NavHostController, backgroundColor: Color, se
 
 
     }
+
+
+
+
+
+    fun calculateDpDistance(
+        currentX: Float,
+        currentY: Float,
+        targetX: Dp,
+        targetY: Dp
+    ): Dp {
+        val dx = currentX - targetX.value
+        val dy = currentY - targetY.value
+        val distancePx = sqrt(dx.pow(2) + dy.pow(2))
+        return distancePx.dp
+    }
+
 
 
 
@@ -884,21 +892,24 @@ fun pictgramBox(
     offsetY: Dp,
     size: Dp
 ) {
-    // 🔍 表示する条件（すべて非表示以外）
+    // 表示するかどうか
     val shouldShow = pictSelectedSpotId != "HIDE_ALL" &&
             (pictSelectedSpotId == null || pictSelectedSpotId == pictSpotId || pictSelectedSpotId == "ALL")
 
-
     if (!shouldShow) return
+
+    val isSelected = pictSelectedSpotId == pictSpotId
 
     Box(
         modifier = Modifier
             .offset(x = offsetX, y = offsetY)
             .size(size)
             .clip(RoundedCornerShape(8.dp))
-            .background(Color(0xFF87CEFA))
+            .background(
+                    Color(0xFF87CEFA)
+            )
+            .border(3.dp, Color.Red, shape = RoundedCornerShape(8.dp)) // 赤い外枠
             .clickable {
-                // 将来的に「タップで詳細表示」などに使える
                 onPictSelect(pictSpotId)
             },
         contentAlignment = Alignment.Center
@@ -906,7 +917,7 @@ fun pictgramBox(
         Image(
             painter = painterResource(id = iconNamePath),
             contentDescription = null,
-            modifier = Modifier.size(35.dp)
+            modifier = Modifier.size(size * 0.6f)
         )
     }
 }
