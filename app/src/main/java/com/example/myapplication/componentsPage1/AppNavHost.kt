@@ -187,6 +187,9 @@ fun Page1AppNavHost(navController: NavHostController, backgroundColor: Color, se
             )
         }
 
+        TopRightIconMenu()
+
+
 
 
 
@@ -503,6 +506,48 @@ fun Page1AppNavHost(navController: NavHostController, backgroundColor: Color, se
 
         }
     }
+
+@Composable
+fun TopRightIconMenu() {
+    val buttonIcons = listOf(
+        R.drawable.toilet,
+        R.drawable.tabako,
+        R.drawable.aed,
+        R.drawable.fork,
+        R.drawable.other
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.TopEnd
+    ) {
+        Row(
+            modifier = Modifier
+                .background(Color.White, shape = RoundedCornerShape(12.dp))
+                .padding(horizontal = 15.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(15.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            buttonIcons.forEach { iconResId ->
+                IconButton(
+                    onClick = { /* TODO: 各機能の処理 */ },
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(Color(0xFF87CEFA), shape = RoundedCornerShape(8.dp))
+                ) {
+                    Image(
+                        painter = painterResource(id = iconResId),
+                        contentDescription = null,
+                        modifier = Modifier.size(35.dp)
+                    )
+
+                }
+            }
+        }
+    }
+}
 
 
 

@@ -85,9 +85,16 @@ fun FolderListDisplay(navController: NavController, subColor: Color, assetPath: 
 }
 suspend fun getSpotFolders(context: Context): List<String> = withContext(Dispatchers.IO) {
     runCatching {
-        context.assets.list("")?.filter { it.matches(Regex("spot\\d+_folder")) } ?: emptyList()
+        context.assets.list("")  // assetsフォルダの直下のファイル／フォルダ一覧を取得
+            ?.filter { it.matches(Regex("spot\\d+_folder")) } // "spot数字_folder" にマッチするものだけ残す
+            ?.sortedBy {
+                // フォルダ名から数字を抜き出して数値でソート
+                Regex("\\d+").find(it)?.value?.toIntOrNull() ?: Int.MAX_VALUE
+            }
+            ?: emptyList()  // null の場合は空リストを返す
     }.getOrDefault(emptyList())
 }
+
 // 観光スポット一覧ページの選択画面
 @Composable
 fun Spot_selection_screen(navController: NavController, backcolor: Color, assetPath: String, folderName: String) {
@@ -99,6 +106,8 @@ fun Spot_selection_screen(navController: NavController, backcolor: Color, assetP
                 val jsonText = inputStream.bufferedReader().use { it.readText() }
                 val jsonObject = JSONObject(jsonText)
                 jsonObject.optString(key, "'$key'に関する情報は設定されていません") // キーがなければデフォルト値
+
+
             } catch (e: IOException) {
                 "Error reading JSON: ${e.message}"
             }
@@ -111,6 +120,7 @@ fun Spot_selection_screen(navController: NavController, backcolor: Color, assetP
         LaunchedEffect(key) {
             jsonValue = readJsonValueFromAssets(context, folderName, jsonName, key)
         }
+
         return jsonValue
     }
     @Composable
