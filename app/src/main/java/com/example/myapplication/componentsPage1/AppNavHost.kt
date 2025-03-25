@@ -159,9 +159,21 @@ fun Page1AppNavHost(navController: NavHostController, backgroundColor: Color, se
     }
 
 
+    val selectedSpotId = remember { mutableStateOf<String?>(null) }
+    val pictSelectedSpotId = remember { mutableStateOf<String?>(null) }
+
     Box(
         modifier = Modifier.fillMaxSize()
+        .clickable {
+            // 🔻 マップをタップしたらポップアップもピクトも非選択にする
+            selectedSpotId.value = null
+            pictSelectedSpotId.value = null
+        }
+
+
     ) {
+
+
         // 1. 背景画像（マップ）
         Image(
             painter = painterResource(id = R.drawable.map2),
@@ -170,24 +182,58 @@ fun Page1AppNavHost(navController: NavHostController, backgroundColor: Color, se
             modifier = Modifier.fillMaxSize()
         )
 
-        val selectedSpotId = remember { mutableStateOf<String?>(null) }
+        TopRightIconMenu(
+//            pictSelectedSpotId = pictSelectedSpotId.value,
+//            onPictSelect = {
+//                pictSelectedSpotId.value = if (pictSelectedSpotId.value == it) null else it
+//
+//                // 👇 ここで観光スポットボタンを非表示に
+//                if (pictSelectedSpotId.value != null) {
+//                    selectedSpotId.value = "HIDE_ALL"
+//                } else {
+//                    selectedSpotId.value = null
+//                }
+//            },
+
+                pictSelectedSpotId = pictSelectedSpotId.value,
+                onPictSelect = { pictSelectedSpotId.value = it },
+                selectedSpotId = selectedSpotId // ← 🔥 追加
+            )
+
+
+
+
+
+
+
+
+
         // 🔵 左上の戻るボタン
 
 // 🔵 左上の戻るボタン（トグル式にする）
         Button(
             onClick = {
                 selectedSpotId.value = if (selectedSpotId.value == "HIDE_ALL") null else "HIDE_ALL"
+
+                pictSelectedSpotId.value = null
             },
             modifier = Modifier
                 .padding(16.dp)
                 .align(Alignment.TopStart)
+//                .clickable {
+//                    // 何かをクリックしたら観光スポットボタンを再表示する
+//                    selectedSpotId.value = null
+//                    pictSelectedSpotId.value = null
+//
+//                }
+
         ) {
             Text(
                 if (selectedSpotId.value == "HIDE_ALL") "ボタンを再表示" else "ボタンを非表示"
             )
         }
 
-        TopRightIconMenu()
+
 
 
 
@@ -440,6 +486,32 @@ fun Page1AppNavHost(navController: NavHostController, backgroundColor: Color, se
 
 
 
+        val pictgramSpots = listOf(
+            Triple("toilet", R.drawable.toilet, 870.dp to 500.dp),
+            Triple("toilet", R.drawable.toilet, 270.dp to 50.dp),
+            Triple("tabako", R.drawable.tabako, 500.dp to 200.dp), // 必要なら追加
+            // 他のアイコンも追加可能
+        )
+
+        pictgramSpots.forEach { (id, resId, position) ->
+            if (pictSelectedSpotId.value == id) {
+                pictgramBox(
+                    pictSpotId = id,
+                    pictSelectedSpotId = pictSelectedSpotId.value,
+                    onPictSelect = { pictSelectedSpotId.value = it },
+                    iconNamePath = resId,
+                    offsetX = position.first,
+                    offsetY = position.second,
+                    size = 44.dp
+                )
+            }
+        }
+
+
+
+
+
+
 
     }
 
@@ -505,16 +577,21 @@ fun Page1AppNavHost(navController: NavHostController, backgroundColor: Color, se
 
 
         }
+
     }
 
 @Composable
-fun TopRightIconMenu() {
-    val buttonIcons = listOf(
-        R.drawable.toilet,
-        R.drawable.tabako,
-        R.drawable.aed,
-        R.drawable.fork,
-        R.drawable.other
+fun TopRightIconMenu(
+    pictSelectedSpotId: String?,
+    onPictSelect: (String?) -> Unit,
+    selectedSpotId: MutableState<String?> // ← 🔥 追加：観光スポットボタンの表示制御に使う
+) {
+    val pictTypes = listOf(
+        "toilet" to R.drawable.toilet,
+        "tabako" to R.drawable.tabako,
+        "aed" to R.drawable.aed,
+        "fork" to R.drawable.fork,
+        "other" to R.drawable.other
     )
 
     Box(
@@ -530,19 +607,28 @@ fun TopRightIconMenu() {
             horizontalArrangement = Arrangement.spacedBy(15.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            buttonIcons.forEach { iconResId ->
+            pictTypes.forEach { (id, iconResId) ->
+                val isSelected = pictSelectedSpotId == id
                 IconButton(
-                    onClick = { /* TODO: 各機能の処理 */ },
+                    onClick = {
+                        val nextId = if (isSelected) null else id
+                        onPictSelect(nextId)
+
+                        // 🔽 観光スポットボタンを非表示にする or 再表示する
+                        selectedSpotId.value = if (nextId != null) "HIDE_ALL" else null
+                    },
                     modifier = Modifier
                         .size(40.dp)
-                        .background(Color(0xFF87CEFA), shape = RoundedCornerShape(8.dp))
+                        .background(
+                            if (isSelected) Color(0xFF1E90FF) else Color(0xFF87CEFA),
+                            shape = RoundedCornerShape(8.dp)
+                        )
                 ) {
                     Image(
                         painter = painterResource(id = iconResId),
                         contentDescription = null,
-                        modifier = Modifier.size(35.dp)
+                        modifier = Modifier.size(30.dp)
                     )
-
                 }
             }
         }
@@ -747,8 +833,10 @@ fun SpotMarkerWithPopup(
     onRouteClick: () -> Unit
 ) {
 
-
+   //ポップアップの表示のBoolean
     val isPopupVisible = selectedSpotId == spotId
+
+    //ボタンの一括，または個別管理ができる．Boolean
     val shouldShowButton = selectedSpotId == null || selectedSpotId == spotId || selectedSpotId == "ALL"
 
 // 🔕 すべて非表示の指示が出ている場合は return（何も描画しない）
@@ -784,3 +872,41 @@ fun SpotMarkerWithPopup(
     }
 }
 
+
+
+@Composable
+fun pictgramBox(
+    pictSpotId: String,
+    pictSelectedSpotId: String?,
+    onPictSelect: (String?) -> Unit,
+    iconNamePath: Int,
+    offsetX: Dp,
+    offsetY: Dp,
+    size: Dp
+) {
+    // 🔍 表示する条件（すべて非表示以外）
+    val shouldShow = pictSelectedSpotId != "HIDE_ALL" &&
+            (pictSelectedSpotId == null || pictSelectedSpotId == pictSpotId || pictSelectedSpotId == "ALL")
+
+
+    if (!shouldShow) return
+
+    Box(
+        modifier = Modifier
+            .offset(x = offsetX, y = offsetY)
+            .size(size)
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color(0xFF87CEFA))
+            .clickable {
+                // 将来的に「タップで詳細表示」などに使える
+                onPictSelect(pictSpotId)
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(id = iconNamePath),
+            contentDescription = null,
+            modifier = Modifier.size(35.dp)
+        )
+    }
+}
