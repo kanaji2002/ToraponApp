@@ -20,7 +20,7 @@ fun Page2AppNavHost(navController: NavHostController, backgroundColor: Color, se
         composable("Detail/{folderName}") { backStackEntry ->
             val folderArg = backStackEntry.arguments?.getString("folderName") ?: "Unknown Folder"
 
-            // 📌 MutableState に変換して渡す
+            // 📌 MutableState に変換して渡す.
             val folderNameState = remember { mutableStateOf(folderArg) }
 
             Page2ScreenDetail(navController, backgroundColor, folderNameState)
