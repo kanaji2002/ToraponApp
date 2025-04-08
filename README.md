@@ -14,7 +14,7 @@
 
 （**うら面のマップ**）  
 ![image](https://github.com/user-attachments/assets/dc1000ba-dd49-410e-9b54-e816d9d9d331)
-
+<br>
 
 このパンフレットにある課題は下記です。
 - **現在地**が分かりづらい
@@ -22,14 +22,14 @@
 - **ピクトグラムの数**が多く、類似した物も多いため識別しづらい
 - **対応言語**が4か国のみ（日本語、英語、中国語、韓国語）
 - 読めない**漢字が多い**
-- 掲載できる**情報量**に限界がある（四季や時間帯によって変わる写真や、歴史、建築様式、秘話等が掲載できていない）  
+- 掲載できる**情報量**に限界がある（四季や時間帯によって変わる写真や、歴史、建築様式、秘話等が掲載できていない）  <br>
 
 ## 上記の課題をとらポンで解決します！
 
 ## とらポンでできること
 - **マップ機能**（現在地や主要スポット、お手洗い等の場所の把握）
 - **詳細な情報**（歴史や四季折々の写真、見どころ等）
-- **多言語化**（9か国語を想定）
+- **多言語化**（9か国語を想定)<br>
 
 
 ## とらポンの機能の一部紹介
@@ -37,29 +37,27 @@
 赤い地点が現在地を、青い点が主要なスポットを表しています。
 
 ![Screenshot_20250406_004655](https://github.com/user-attachments/assets/350a5a3f-fc6d-4c3a-b926-c3c4a5fe3143)
+<br>
 
 青白い点を押すと、そのスポットの詳細がポップアップとして出現します。
 ![Screenshot_20250406_005109](https://github.com/user-attachments/assets/f8167c5b-24f2-45e7-98dc-c5dfb064929f)
-
+<br>
 
 右上のピクトグラムのお手洗いを押すと、マップ上にお手洗いが出現します。また、左上のONとOFFボタンで、マップ上の主要なスポット（青白い点）を一時的に消すこともできます。
-![Screenshot_20250406_004804](https://github.com/user-attachments/assets/711c1c41-e242-4a1e-9352-b2510b5c772e)
-
+![Screenshot_20250406_004804](https://github.com/user-attachments/assets/711c1c41-e242-4a1e-9352-b2510b5c772e)  
 
 
 ### 主要なスポット一覧
 主要なスポット一覧画面-1
-![Screenshot_20250406_004737](https://github.com/user-attachments/assets/0b9d0a5b-91f7-4a60-b054-6c347aaec470)
+![Screenshot_20250406_004737](https://github.com/user-attachments/assets/0b9d0a5b-91f7-4a60-b054-6c347aaec470)<br>
+
 
 主要なスポット一覧画面-2（スクロールした画像）
-![Screenshot_20250406_004727](https://github.com/user-attachments/assets/135cb887-a836-414e-9ca1-ac3c327245e9)
+![Screenshot_20250406_004727](https://github.com/user-attachments/assets/135cb887-a836-414e-9ca1-ac3c327245e9)<br>
+
 
 商工奨励館の「詳細ボタン」を押した際に画面遷移するページ
 ![Screenshot_20250406_004737](https://github.com/user-attachments/assets/b13e68e8-23a4-41f9-857b-6b1196dbb876)
-
-
-
-
 
 
 
