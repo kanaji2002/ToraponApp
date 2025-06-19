@@ -13,10 +13,10 @@
 ![image](https://github.com/user-attachments/assets/5eb0d25e-b2a2-4a4a-9eca-7b84d7ea3acf)
 
 （**うら面のマップ**）  
-![image](https://github.com/user-attachments/assets/dc1000ba-dd49-410e-9b54-e816d9d9d331)
-<br>
+![image](https://github.com/user-attachments/assets/3b3d3e5b-7839-4580-a400-23f845610b7f)
 
-このパンフレットにある課題は下記です。
+
+### このパンフレットにある課題は下記です。
 - **現在地**が分かりづらい
 - **主要なスポットの位置**が分かりづらい
 - **ピクトグラムの数**が多く、類似した物も多いため識別しづらい
