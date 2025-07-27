@@ -32,9 +32,6 @@
 - **詳細な情報**（歴史や四季折々の写真、見どころ等）
 - **多言語化**（9か国語を想定)<br>
 
-## プロトタイプ
-![Videotogif](https://github.com/user-attachments/assets/e768aa74-721e-4a03-a824-45ef4727ffb3)
-
 
 
 ## とらポンの機能の一部紹介
